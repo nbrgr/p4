@@ -30,6 +30,22 @@ typedef struct {
 } u_queue;
 
 /*
+This is the struct for the bounded queue, which is used by download_queue. It allows the parsers
+to send work to the downloaders.
+It has two pointers: a pointer to the front node and one to the back node.
+int size determines whether or not the queue is empty or full.
+It contains a mutex, lock, and two condition variables, full and empty.
+*/
+typedef struct {
+	b_queue_node* front;
+	b_queue_node* back;
+	int size;
+	pthread_mutex_t lock;
+	pthread_cond_t full;
+	pthread_cond_t empty;
+} b_queue;
+
+/*
 This is a single node for the unbounded queue type. Has two members:
 char* content
 and
@@ -42,6 +58,15 @@ struct u_queue_node {
 }
 
 /*
+A single node for the bounded queue. char* content contains the links found by the parser.
+b_queue_node* next points to the next b_queue_node.
+*/
+struct b_queue_node {
+	char* link;
+	b_queue_node* next;
+}
+
+/*
 void u_queue_init: Given an pointer to an uninitialized queue, inits it.
 
 @params:
@@ -50,7 +75,7 @@ Sets all initial pointers to NULL,
 Sets size to 0,
 Initializes the lock and condition variables it contains.
 */
-void u_queue_init(queue* initqueue)
+void u_queue_init(u_queue* initqueue)
 {
 	initqueue->front = NULL;
 	initqueue->back = NULL;
@@ -58,6 +83,20 @@ void u_queue_init(queue* initqueue)
 	pthread_mutex_init(initqueue->lock);
 	pthread_cond_init(initqueue->full);
 	pthread_cond_init(initqueue->empty);
+}
+
+/*
+Initializes a b_queue by setting both nodes to NULL, size to 0, and initializing
+the mutex and condition variables using the pthread functions.
+*/
+void b_queue_init(b_queue* queue)
+{
+	queue->front = NULL;
+	queue->back = NULL;
+	queue->size = 0;
+	pthread_mutex_init(queue->lock);
+	pthread_cond_init(queue->full);
+	pthread_cond_init(queue->empty);
 }
 
 /*
@@ -92,6 +131,7 @@ char*, the content from the removed node (the url)
 */
 char* u_dequeue(struct u_queue* queue)
 {
+    if(isempty(queue)) return NULL;
     char* url = queue->front->content;
     struct u_queue_node* copy = queue->front;
     queue->front = queue->front->next;
@@ -99,7 +139,7 @@ char* u_dequeue(struct u_queue* queue)
     return url;
 }
 
-int isempty(struct u_queue queue)
+int isempty(struct u_queue* queue)
 {
     if (!queue->size)
     {
@@ -119,6 +159,14 @@ int crawl(char *start_url,
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
     u_queue parse_queue;
     u_queue_init(&parse_queue);
+    b_queue download_queue;
+    b_queue_init(&download_queue);
+    u_enqueue(start_url);
     
+    while(isempty(parse_queue) && isempty(download_queue))
+    {
+    	
+    	
+    }
     return 0;
 }
