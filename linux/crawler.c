@@ -71,15 +71,32 @@ void u_enqueue(struct u_queue* queue, char* url)
 {
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
+    if (newnode == NULL) {
+    	printf(stderr, "Malloc failed\n");
+    	exit(1);
+    }
     newnode->content = content;
     newnode->next = NULL;
     stack->back->next = newnode;
-		stack->back = newnode;
+    stack->back = newnode;
     stack->size += 1;
 }
 
+/*
+char* u_dequeue: Removes the front node of the queue
+
+@params:
+struct u_queue* queue, the queue to be operated on
+@return:
+char*, the content from the removed node (the url)
+*/
 char* u_dequeue(struct u_queue* queue)
 {
+    char* url = queue->front->content;
+    struct u_queue_node* copy = queue->front;
+    queue->front = queue->front->next;
+    free(copy);
+    return url;
 }
 
 int isempty(struct u_queue queue)
@@ -98,8 +115,10 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void (*_edge_fn)(char *from, char *to))
 {
-  pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
-	pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
-	u_queue parse_queue;
-	u_queue_init(&parse_queue);
+    pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
+    pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
+    u_queue parse_queue;
+    u_queue_init(&parse_queue);
+    
+    return 0;
 }
