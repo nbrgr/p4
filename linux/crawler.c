@@ -148,9 +148,17 @@ char*, the content from the removed node (the url)
 */
 char* u_dequeue(struct u_queue* queue)
 {
-    if(isempty(queue)) return NULL;
     char* url = queue->front->content;
     struct u_queue_node* copy = queue->front;
+    queue->front = queue->front->next;
+    free(copy);
+    return url;
+}
+
+char* b_dequeue(struct b_queue* queue)
+{
+    char* url = queue->front->content;
+    struct b_queue_node* copy = queue->front;
     queue->front = queue->front->next;
     free(copy);
     return url;
@@ -167,21 +175,25 @@ int isempty(struct u_queue* queue)
 
 u_queue parse_queue;
 b_queue download_queue;
+char * (*_fetch_fn)(char *url)
+void (*_edge_fn)(char *from, char *to)
 
-void* downloader(char* url)
+
+void* downloader(char * (*_fetch_fn)(char *url))
 {
-    b_queue dq = download_queue;
-    pthread_mutex_lock(&dq->lock);
-    while(dq->size == dq->max) {
-    	pthread_cond_wait(&dq->empty, &dq->lock);
+    pthread_mutex_lock(&download_queue->lock);
+    while(download_queue->size == 0) {
+    	pthread_cond_wait(&download_queue->full, &download_queue->lock);
     }
-    b_enqueue(&dq, url);
+    char* content = b_dequeue(&download_queue);
+    content = fetch(content);
+    u_enqueue(&parse_queue, content);
     
-    pthread_cond_signal(&dq->full);
-    pthread_mutex_unlock(&dq->lock);
+    pthread_cond_signal(&download_queue->empty);
+    pthread_mutex_unlock(&download_queue->lock);
 }
 
-void* parser(char* )
+void* parser(void (*_edge_fn)(char *from, char *to))
 {
     q_queue pq = parse_queue;
     pthread_mutex_lock(&pq->lock);
