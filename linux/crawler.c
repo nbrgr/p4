@@ -32,13 +32,15 @@ typedef struct {
 /*
 This is the struct for the bounded queue, which is used by download_queue. It allows the parsers
 to send work to the downloaders.
-It has two pointers: a pointer to the front node and one to the back node.
+It has an array that functions as the bounded queue and two integers to track position
 int size determines whether or not the queue is empty or full.
 It contains a mutex, lock, and two condition variables, full and empty.
 */
 typedef struct {
-	b_queue_node* front;
-	b_queue_node* back;
+	char** array;
+	int front;
+	int back;
+	int max;
 	int size;
 	pthread_mutex_t lock;
 	pthread_cond_t full;
@@ -55,15 +57,6 @@ A string that contains the content of that node and a pointer to the next node i
 struct u_queue_node {
 	char* content;
 	u_queue_node* next;
-}
-
-/*
-A single node for the bounded queue. char* content contains the links found by the parser.
-b_queue_node* next points to the next b_queue_node.
-*/
-struct b_queue_node {
-	char* content;
-	b_queue_node* next;
 }
 
 /*
@@ -86,15 +79,17 @@ void u_queue_init(u_queue* initqueue)
 }
 
 /*
-Initializes a b_queue by setting both nodes to NULL, size to 0, and initializing
+Initializes a b_queue by setting both front and back positions to 0, size to 0,
+allocating the array used as the queue and initializing
 the mutex and condition variables using the pthread functions.
 */
 void b_queue_init(b_queue* queue, int queue_size)
 {
-	queue->front = NULL;
-	queue->back = NULL;
+	queue->front = 0;
+	queue->back = 0;
 	queue->size = 0;
 	queue->max = queue_size;
+	queue->array = malloc(sizeof(char*) * queue_size);
 	pthread_mutex_init(queue->lock);
 	pthread_cond_init(queue->full);
 	pthread_cond_init(queue->empty);
@@ -130,12 +125,10 @@ char* url, the url used to later fetch the page content.
 */
 void b_enqueue(struct b_queue* queue, char* url)
 {
-    struct b_queue_node* newnode;
-    newnode = (struct b_queue+node*)malloc(sizeof(struct b_queue_node));
-    newnode->content = url;
-    newnode->next = queue->back;
-    queue->back = newnode;
-    queue->size += 1;
+    queue->array[queue->back] = url;
+		queue->back++;
+		queue->back = queue->back % queue->max;
+    queue->size++;
 }
 
 /*
@@ -157,20 +150,37 @@ char* u_dequeue(struct u_queue* queue)
 
 char* b_dequeue(struct b_queue* queue)
 {
-    char* url = queue->front->content;
-    struct b_queue_node* copy = queue->front;
-    queue->front = queue->front->next;
-    free(copy);
+    char* url = queue->array[queue->front];
+		queue->front++;
+		queue->front = queue->front % queue->max;
     return url;
 }
 
-int isempty(struct u_queue* queue)
+int u_isempty(struct u_queue* queue)
 {
     if (!queue->size)
     {
         return 1;
     }
     return 0;
+}
+
+int b_isempty(struct b_queue* queue)
+{
+	if (!queue->size)
+	{
+			return 1;
+	}
+	return 0;
+}
+
+int b_isfull(struct b_queue* queue)
+{
+	if (queue->size == queue->max)
+	{
+		return 1;
+	}
+	return 0;
 }
 
 u_queue parse_queue;
@@ -188,7 +198,7 @@ void* downloader(char * (*_fetch_fn)(char *url))
     char* content = b_dequeue(&download_queue);
     content = fetch(content);
     u_enqueue(&parse_queue, content);
-    
+
     pthread_cond_signal(&download_queue->empty);
     pthread_mutex_unlock(&download_queue->lock);
 }
@@ -200,8 +210,8 @@ void* parser(void (*_edge_fn)(char *from, char *to))
     while(pq->size == pq->max) {
     	pthread_cond_wait(&pq->empty, &pq->lock);
     }
-    
-    
+
+
     pthread_cond_signal(&pq->full);
     pthread_mutex_unlock(&pq->lock);
 }
@@ -213,9 +223,13 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void (*_edge_fn)(char *from, char *to))
 {
-    pthread_t downloaders[download_workers];
-    pthread_t parsers[parse_workers];
-    
+    pthread_t downloaders = malloc(sizeof(pthread_t) * download_workers);
+    pthread_t parsers = malloc(sizeof(pthread_t) * parse_workers);
+
+		u_queue_init(&parse_queue);
+		b_queue_init(&download_queue, queue_size);
+		b_enqueue(start_url);
+
     int i = 0;
     for(; i < download_workers; i++) {
     	pthread_create(&downloaders[i], NULL, downloader, NULL);
@@ -229,15 +243,13 @@ int crawl(char *start_url,
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
     }*/
-    
-    u_queue_init(&parse_queue);
-    b_queue_init(&download_queue, queue_size);
-    b_enqueue(start_url);
-    
+
+
+
     while(isempty(parse_queue) && isempty(download_queue))
     {
-    	
-    	
+
+
     }
     return 0;
 }
