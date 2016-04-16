@@ -176,11 +176,11 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->parent = proc;
   *np->tf = *proc->tf;
 
-  *(((uint *)stack) + PGSIZE - sizeof(void*)) = (uint)arg;
-  *(((uint *)stack) + PGSIZE - 2 * sizeof(void*)) = (uint)0xFFFFFFFF;
+  *((uint *)stack + PGSIZE - 1) = (uint)arg;
+  *((uint *)stack + PGSIZE - 2) = (uint)0xFFFFFFFF;
 
 
-  np->tf->ebp = (uint)(stack + 4095);
+  np->tf->ebp = (uint)(stack + 4094);
   np->tf->esp = np->tf->ebp;
 
   // Clear %eax so that fork returns 0 in the child.
