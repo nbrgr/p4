@@ -187,7 +187,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   uint* ustack = (uint *)stack;
 
   ustack[1023] = (uint)arg;
-  ustack[1022] = (uint)0xFFFFFFFF;
+  ustack[1022] = (uint)0xffffffff;
 
   np->tf->esp = (uint)stack;
   memmove((void*)np->tf->esp, stack, PGSIZE);
@@ -227,7 +227,7 @@ int join(void** stack)
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != proc || proc->pgdir != p->pgdir)
+      if(p->parent != proc || proc->pgdir != p->pgdir || proc->pid == p->pid)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
