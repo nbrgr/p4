@@ -180,7 +180,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
 
   *(uint *)(4095 + (void *)stack) = (uint)arg;
   *(uint *)(4094 + (void *)stack) = (uint)0xFFFFFFFF;
-  cprintf("%d %d %d",stack, (4095 + (void*)stack), (4094 + (void*)stack));
+  cprintf("stack:%p, %d %d",((void*) stack + 4095), *(4095 + (void*)stack), *(4094 + (void*)stack));
 
   np->tf->ebp = *(uint *)(4094 + (void *)stack);
   np->tf->esp = np->tf->ebp;
