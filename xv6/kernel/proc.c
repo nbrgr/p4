@@ -166,6 +166,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   int i, pid;
   struct proc *np;
 
+  cprintf("%p ", stack);
+
   // Allocate process.
   if((np = allocproc()) == 0)
     return -1;
