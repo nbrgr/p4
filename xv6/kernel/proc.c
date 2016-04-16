@@ -210,6 +210,7 @@ int join(void** stack)
 {
   int found = 0;
   int pid = 0;
+  struct proc* p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent != proc || p->stack != *stack)
