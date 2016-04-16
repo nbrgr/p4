@@ -187,7 +187,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   uint* ustack = (uint *)stack;
 
   ustack[1023] = (uint)arg;
-  ustack[1022] = (uint)0xFFFFFFFF;
+  ustack[1022] = (uint)0xffffffff;
 
   np->tf->esp = (uint)stack;
   memmove((void*)np->tf->esp, stack, PGSIZE);
