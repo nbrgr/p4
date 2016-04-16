@@ -176,8 +176,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->parent = proc;
   *np->tf = *proc->tf;
 
-  *((uint *)stack + 4095) = (uint)arg;
-  *((uint *)stack + 4094) = (uint)0xFFFFFFFF;
+  *(((uint *)stack) + PGSIZE - sizeof(void*)) = (uint)arg;
+  *(((uint *)stack) + PGSIZE - 2 * sizeof(void*)) = (uint)0xFFFFFFFF;
 
 
   np->tf->ebp = (uint)(stack + 4095);
