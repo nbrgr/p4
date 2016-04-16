@@ -170,7 +170,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if((np = allocproc()) == 0)
     return -1;
 
-  uint* ustack = (uint *)stack);
+  uint* ustack = (uint *)stack;
   
   np->pgdir = proc->pgdir;
   np->sz = proc->sz;
