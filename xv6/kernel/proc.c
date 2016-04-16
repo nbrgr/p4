@@ -173,19 +173,14 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if((np = allocproc()) == 0)
     return -1;
 
-    kfree(np->kstack);
-    np->kstack = 0;
-    np->state = UNUSED;
-    return -1;
-  }
   
   np->pgdir = proc->pgdir;
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
   stack[4095] = (uint)arg;
-  stack[4094] = 0xffffffff;
-  stack[4093] = proc->context->ebp;
+  stack[4094] = (uint)0xffffffff;
+  stack[4093] = (uint)proc->context->ebp;
   np->ebp = *stack[4093];
 
   // Clear %eax so that fork returns 0 in the child.
