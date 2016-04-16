@@ -178,9 +178,9 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->parent = proc;
   *np->tf = *proc->tf;
 
-  *(uint *)(4095 + (void *)stack) = (uint)arg;
-  *(uint *)(4094 + (void *)stack) = (uint)0xFFFFFFFF;
-  cprintf("stack:%p, %d %d",(stack + 4095), *(4095 + (int*)stack), *(4094 + (int*)stack));
+  (uint *)stack[4095] = (uint)arg;
+  (uint *)stack[4094] = (uint)0xFFFFFFFF;
+  cprintf("stack:%p, %d %d",(stack + 4095), stack[4095], stack[4094]);
 
   np->tf->ebp = *(uint *)(4094 + (void *)stack);
   np->tf->esp = np->tf->ebp;
