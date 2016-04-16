@@ -105,9 +105,55 @@ void b_queue_init(b_queue* queue, int queue_size)
 	pthread_cond_init(queue->empty);
 }
 
-void h_table_init(hash_table tbl) {
-	tbl->max = HASH;
+void hash_init(hash_table* tbl, size) {
+	tbl->max = size;
 	tbl->table = malloc(sizeof(bucket*) * max);
+}
+
+/*
+The function for the hash table.
+
+@params:
+unsigned char *str, the string to be hashed (url)
+@return:
+unsigned long, the computed key
+
+**NOTE: this is the djb2 function created by Dan Bernstein for strings.**
+Source: http://www.cse.yorku.ca/~oz/hash.html
+*/
+unsigned long hash(unsigned char *str)
+{
+        unsigned long hash = 5381;
+        int c;
+    
+        while (c = *str++)
+            hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+        return hash;
+}
+
+int hash_find_insert(hash_table tbl*, char* link) {
+        unsigned long key = hash(link) % (tbl->max);
+        int found = 0;
+        int insert = 0;
+        bucket* copy = tbl->table[key];
+        
+        while(!insert || !found) {
+               if(strcmp(copy->link, link) == 0) {
+                       found = 1;
+               }
+               else if(copy->next == NULL) {
+                       bucket* new_b = malloc(sizeof(bucket));
+                       new_b->next = NULL;
+                       new_b->link = link;
+                       copy->next = new_b;
+                       insert = 1;
+               }
+               else {
+                       copy = copy->next;
+               }
+        }
+        return found;
 }
 
 /*
@@ -200,31 +246,8 @@ int b_isfull(struct b_queue* queue)
 
 u_queue parse_queue;
 b_queue download_queue;
-hash_table links_visited;
+hash_table* links_visited;
 char* from_link = NULL;
-char* to_link = NULL;
-
-/*
-The function for the hash table.
-
-@params:
-unsigned char *str, the string to be hashed (url)
-@return:
-unsigned long, the computed key
-
-**NOTE: this is the djb2 function created by Dan Bernstein for strings.**
-Source: http://www.cse.yorku.ca/~oz/hash.html
-*/
-unsigned long hash(unsigned char *str)
-{
-    unsigned long hash = 5381;
-    int c;
-    
-    while (c = *str++)
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
-    return hash;
-}
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
@@ -236,8 +259,10 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     while(token != NULL) {
     	if(strncmp(token,search,5) == 0) {
     		found = strstr(token, search);
-    		b_enqueue(&download_queue, found);
-    		_edge_fn(from_link, to_link);
+    		if(!hash_find_insert(links_visited, found)) {
+    		        b_enqueue(&download_queue, found);
+    		        _edge_fn(from_link, found);
+    		}
     	}
     	token = strtok_r(NULL, search, &save);
     }
@@ -250,6 +275,7 @@ void* downloader(char* (*_fetch_fn)(char *url))
     	pthread_cond_wait(&download_queue->full, &download_queue->lock);
     }
     char* content = b_dequeue(&download_queue);
+    from_link = content;
     content = _fetch_fn(content);
     u_enqueue(&parse_queue, content);
 
@@ -284,6 +310,8 @@ int crawl(char *start_url,
     b_queue_init(&download_queue, queue_size);
     b_enqueue(start_url);
     from_link = start_url;
+    hash_init(links_visited, queue_size);
+    hash_find_insert(links_visited, start_url);
 
     int i = 0;
     for(; i < download_workers; i++) {
