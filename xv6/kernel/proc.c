@@ -178,9 +178,9 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
-  stack[4095] = (uint)arg;
-  stack[4094] = (uint)0xffffffff;
-  stack[4093] = (uint)proc->context->ebp;
+  stack[4095] = arg;
+  stack[4094] = 0xffffffff;
+
   np->ebp = *stack[4093];
 
   // Clear %eax so that fork returns 0 in the child.
