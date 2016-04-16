@@ -170,7 +170,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if((np = allocproc()) == 0)
     return -1;
 
-  if ((int)stack % PGSIZE != 0)
+  if (((int)stack % PGSIZE != 0) || stack == NULL)
     return -1;
 
 
