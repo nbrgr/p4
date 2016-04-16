@@ -181,11 +181,11 @@ clone(void (*fcn)(void*), void *arg, void* stack)
 
   *(uint *)(4095 + stack) = (uint)arg;
   *(uint *)(4094 + stack) = (uint)0xffffffff;
-  np->ebp = *(uint *)(4094 + stack);
+  np->tf->ebp = *(uint *)(4094 + stack);
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
-  np->tf->eip = fcn;
+  np->tf->eip = (uint)fcn;
 
   for(i = 0; i < NOFILE; i++)
     if(proc->ofile[i])
