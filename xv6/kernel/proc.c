@@ -182,6 +182,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   *(uint *)(4095 + stack) = (uint)arg;
   *(uint *)(4094 + stack) = (uint)0xffffffff;
   np->tf->ebp = *(uint *)(4094 + stack);
+  np->tf->esp = np->tf->ebp;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
