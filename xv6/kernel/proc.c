@@ -170,6 +170,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if((np = allocproc()) == 0)
     return -1;
 
+  cprintf("%d %d %d", (uint)fcn, (uint)arg, (uint)stack)
+
   uint* ustack = (uint *)stack;
   
   np->pgdir = proc->pgdir;
@@ -187,8 +189,6 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
   np->tf->eip = (uint)fcn;
-
-  cprintf("eip: %p, ebp: %p, esp: %p",np->tf->eip,np->tf->ebp,np->tf->esp);
 
   for(i = 0; i < NOFILE; i++)
     if(proc->ofile[i])

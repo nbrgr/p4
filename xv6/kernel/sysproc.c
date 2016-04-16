@@ -23,7 +23,6 @@ int sys_clone(void)
     return -1;
   if (argint(2, &stack) == -1)
     return -1;
-  cprintf("%p %p %p\n", fcn, arg, stack);
 
   return clone((void*)fcn, (void*)arg, (void*)stack);
 }
