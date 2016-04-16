@@ -219,11 +219,8 @@ int join(void** stack)
       release(&ptable.lock);
       return waitpid(p->pid);
   }
-  if (!found)
-  {
-    release(&ptable.lock);
-    return -1;
-  }
+  release(&ptable.lock);
+  return -1;
 }
 
 // Exit the current process.  Does not return.
