@@ -159,11 +159,7 @@ fork(void)
   return pid;
 }
 
-// This is a copy of fork. All I changed thus far is setting the
-// pid of the child process to the pid of the parent proccess and
-// added a tid to the proc struct and updates it in every allocproc.
-// returns the tid of the process.
-int
+// This is a copy of fork.
 clone(void (*fcn)(void*), void *arg, void* stack)
 {
   int i, pid;
@@ -179,10 +175,10 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->parent = proc;
   *np->tf = *proc->tf;
 
-  *(uint *)(4095 + stack) = (uint)arg;
-  *(uint *)(4094 + stack) = proc->tf->ebp;
-  *(uint *)(4093 + stack) = (uint)0xFFFFFFFF;
-  np->tf->ebp = *(uint *)(4093 + stack);
+  *(uint *)(4095 + (void *)stack) = (uint)arg;
+  *(uint *)(4094 + (void *)stack) = (uint)0xFFFFFFFF;
+
+  np->tf->ebp = *(uint *)(4094 + (void *)stack);
   np->tf->esp = np->tf->ebp;
 
   // Clear %eax so that fork returns 0 in the child.
