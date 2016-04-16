@@ -170,7 +170,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if((np = allocproc()) == 0)
     return -1;
 
-  cprintf("%d %d %d", (uint)fcn, (uint)arg, (uint)stack)
+  cprintf("%d %d %d", (uint)fcn, (uint)arg, (uint)stack);
 
   uint* ustack = (uint *)stack;
   
