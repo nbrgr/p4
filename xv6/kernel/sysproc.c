@@ -14,9 +14,9 @@ sys_fork(void)
 
 int sys_clone(void)
 {
-  int* fcn;
-  int* arg;
-  int* stack;
+  int* fcn = NULL;
+  int* arg = NULL;
+  int* stack = NULL;
   if (argint(0,fcn) == -1)
     return -1;
   if (argint(1,arg) == -1)
