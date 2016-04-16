@@ -170,21 +170,24 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if((np = allocproc()) == 0)
     return -1;
 
-  cprintf("%d %d %d", (uint)fcn, (uint)arg, (uint)stack);
+  cprintf("%p %p %p", fcn, arg, stack);
 
-  uint* ustack = (uint *)stack;
-  
+
   np->pgdir = proc->pgdir;
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
 
+  uint* ustack = (uint *)stack;
+
   ustack[4095] = (uint)arg;
   ustack[4094] = (uint)0xFFFFFFFF;
 
 
-  np->tf->ebp = (uint)(&(ustack[4094]));
-  np->tf->esp = np->tf->ebp;
+  np->tf->esp = (uint)stack;
+  memmove((void*)np->tf->esp, stack, PGSIZE);
+  np->tf->esp = &ustack[4094];
+  np->tf->ebp = np->tf->esp;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
