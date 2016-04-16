@@ -186,7 +186,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
 
   np->tf->esp = (uint)stack;
   memmove((void*)np->tf->esp, stack, PGSIZE);
-  np->tf->esp = &ustack[4094];
+  np->tf->esp = (uint)&ustack[4094];
   np->tf->ebp = np->tf->esp;
 
   // Clear %eax so that fork returns 0 in the child.
