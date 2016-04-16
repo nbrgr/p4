@@ -159,6 +159,50 @@ fork(void)
   return pid;
 }
 
+// This is a copy of fork. All I changed thus far is setting the
+// pid of the child process to the pid of the parent proccess and
+// added a tid to the proc struct and updates it in every allocproc.
+// returns the tid of the process.
+int
+clone(void (*fcn)(void*), void *arg, void* stack)
+{
+  int i, pid;
+  struct proc *np;
+
+  // Allocate process.
+  if((np = allocproc()) == 0)
+    return -1;
+
+    kfree(np->kstack);
+    np->kstack = 0;
+    np->state = UNUSED;
+    return -1;
+  }
+  
+  np->pgdir = proc->pgdir;
+  np->sz = proc->sz;
+  np->parent = proc;
+  *np->tf = *proc->tf;
+  stack[4095] = (uint)arg;
+  stack[4094] = 0xffffffff;
+  stack[4093] = proc->context->ebp;
+  np->ebp = *stack[4093];
+
+  // Clear %eax so that fork returns 0 in the child.
+  np->tf->eax = 0;
+  np->context->eip = fcn;
+
+  for(i = 0; i < NOFILE; i++)
+    if(proc->ofile[i])
+      np->ofile[i] = filedup(proc->ofile[i]);
+  np->cwd = idup(proc->cwd);
+ 
+  pid = np->pid;
+  np->state = RUNNABLE;
+  safestrcpy(np->name, proc->name, sizeof(proc->name));
+  return pid;
+}
+
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
