@@ -209,7 +209,6 @@ clone(void (*fcn)(void*), void *arg, void* stack)
 int join(void** stack)
 {
   int found = 0;
-  int pid = 0;
   struct proc* p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -219,7 +218,6 @@ int join(void** stack)
       *stack = p->stack;
       release(&ptable.lock);
       return waitpid(p->pid);
-    }
   }
   if (!found)
   {
