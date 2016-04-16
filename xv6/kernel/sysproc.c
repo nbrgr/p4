@@ -14,14 +14,14 @@ sys_fork(void)
 
 int sys_clone(void)
 {
-  int* fcn = NULL;
-  int* arg = NULL;
-  int* stack = NULL;
-  if (argint(0,fcn) == -1)
+  int fcn;
+  int arg;
+  int stack;
+  if (argint(0, &fcn) == -1)
     return -1;
-  if (argint(1,arg) == -1)
+  if (argint(1, &arg) == -1)
     return -1;
-  if (argint(2,stack) == -1)
+  if (argint(2, &stack) == -1)
     return -1;
   cprintf("%p %p %p", fcn, arg, stack);
 
@@ -30,8 +30,8 @@ int sys_clone(void)
 
 int sys_join(void)
 {
-  int* stack = NULL;
-  if (argint(0,stack) == -1)
+  int stack;
+  if (argint(0, &stack) == -1)
     return -1;
 
   return join((void**)stack);
