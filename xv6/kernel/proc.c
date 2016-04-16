@@ -47,6 +47,9 @@ found:
   p->pid = nextpid++;
   release(&ptable.lock);
 
+  p->children = 0;
+  p->threads = 0;
+
   // Allocate kernel stack if possible.
   if((p->kstack = kalloc()) == 0){
     p->state = UNUSED;
@@ -144,6 +147,7 @@ fork(void)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
+  proc->children++;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -178,6 +182,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->parent = proc;
   *np->tf = *proc->tf;
 
+  proc->threads++;
+
   uint* ustack = (uint *)stack;
 
   ustack[1023] = (uint)arg;
@@ -210,6 +216,11 @@ int join(void** stack)
 {
   struct proc *p;
   int havekids, pid;
+
+  if (!(proc->threads))
+  {
+    return -1;
+  }
 
   acquire(&ptable.lock);
   for(;;){
@@ -298,6 +309,11 @@ wait(void)
 {
   struct proc *p;
   int havekids, pid;
+
+  if (!(proc->children))
+  {
+    return -1;
+  }
 
   acquire(&ptable.lock);
   for(;;){
