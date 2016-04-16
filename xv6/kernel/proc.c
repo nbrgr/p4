@@ -312,6 +312,7 @@ wait(void)
 
   if (!(proc->children))
   {
+    cprintf("No Children\n");
     return -1;
   }
 
