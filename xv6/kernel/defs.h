@@ -107,6 +107,7 @@ void            sched(void);
 void            sleep(void*, struct spinlock*);
 void            userinit(void);
 int             wait(void);
+int 			wait(int pid);
 void            wakeup(void*);
 void            yield(void);
 int 			clone(void (*fcn)(void*), void *arg, void* stack);
