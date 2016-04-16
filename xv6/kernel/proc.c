@@ -170,7 +170,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if((np = allocproc()) == 0)
     return -1;
 
-  cprintf("%p %p %p", fcn, arg, stack);
+  if (stack % PGSIZE != 0)
+    return -1;
 
 
   np->pgdir = proc->pgdir;
@@ -180,12 +181,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
 
   uint* ustack = (uint *)stack;
 
-  cprintf("size of void: %d size of uint %d, size of void*: %d, size of uint* %d", sizeof(void), sizeof(uint), sizeof(void*), sizeof(uint*));
-
-
   ustack[1023] = (uint)arg;
   ustack[1022] = (uint)0xFFFFFFFF;
-
 
   np->tf->esp = (uint)stack;
   memmove((void*)np->tf->esp, stack, PGSIZE);
