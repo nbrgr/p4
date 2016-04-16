@@ -173,6 +173,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if (((int)stack % PGSIZE != 0) || stack == NULL)
     return -1;
 
+  cprintf("%d", stack);
+
 
   np->pgdir = proc->pgdir;
   np->sz = proc->sz;
