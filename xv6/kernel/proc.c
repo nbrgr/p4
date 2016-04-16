@@ -183,6 +183,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   ustack[4095] = (uint)arg;
   ustack[4094] = (uint)0xFFFFFFFF;
 
+  cprintf("size of void: %d size of uint %d, size of void*: %d, size of uint* %d", sizeof(void), sizeof(uint), sizeof(void*), sizeof(uint*));
 
   np->tf->esp = (uint)stack;
   memmove((void*)np->tf->esp, stack, PGSIZE);
