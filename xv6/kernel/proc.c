@@ -180,7 +180,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   *((uint *)stack + 4094) = (uint)0xFFFFFFFF;
 
 
-  np->tf->ebp = *stack[4095];
+  np->tf->ebp = (uint)(stack + 4095);
   np->tf->esp = np->tf->ebp;
 
   // Clear %eax so that fork returns 0 in the child.
