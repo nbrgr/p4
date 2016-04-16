@@ -29,7 +29,7 @@ int sys_clone(void)
 
 int sys_join(void)
 {
-  int* stack;
+  int* stack = NULL;
   if (argint(0,stack) == -1)
     return -1;
 
