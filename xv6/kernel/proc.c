@@ -183,13 +183,13 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   cprintf("size of void: %d size of uint %d, size of void*: %d, size of uint* %d", sizeof(void), sizeof(uint), sizeof(void*), sizeof(uint*));
 
 
-  ustack[4095] = (uint)arg;
-  ustack[4094] = (uint)0xFFFFFFFF;
+  ustack[1023] = (uint)arg;
+  ustack[1022] = (uint)0xFFFFFFFF;
 
 
   np->tf->esp = (uint)stack;
   memmove((void*)np->tf->esp, stack, PGSIZE);
-  np->tf->esp = (uint)&ustack[4094];
+  np->tf->esp = (uint)&ustack[1022];
   np->tf->ebp = np->tf->esp;
 
   // Clear %eax so that fork returns 0 in the child.
