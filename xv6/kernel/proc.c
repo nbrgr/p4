@@ -176,8 +176,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->parent = proc;
   *np->tf = *proc->tf;
 
-  ((uint *)stack)[4095] = (uint *)arg;
-  ((uint *)stack)[4094] = (uint *)0xFFFFFFFF;
+  *((uint *)stack + 4095) = (uint)arg;
+  *((uint *)stack + 4094) = (uint)0xFFFFFFFF;
   cprintf("stack:%p, %d %d",(stack + 4095), stack[4095], stack[4094]);
 
   np->tf->ebp = *stack[4095];
