@@ -59,6 +59,16 @@ struct u_queue_node {
 	u_queue_node* next;
 }
 
+typedef struct {
+	bucket* next;
+	char* link;
+} bucket;
+
+typedef struct {
+	bucket** table;
+	int max;
+} hash_table;
+
 /*
 void u_queue_init: Given an pointer to an uninitialized queue, inits it.
 
@@ -93,6 +103,11 @@ void b_queue_init(b_queue* queue, int queue_size)
 	pthread_mutex_init(queue->lock);
 	pthread_cond_init(queue->full);
 	pthread_cond_init(queue->empty);
+}
+
+void h_table_init(hash_table tbl) {
+	tbl->max = HASH;
+	tbl->table = malloc(sizeof(bucket*) * max);
 }
 
 /*
@@ -185,14 +200,47 @@ int b_isfull(struct b_queue* queue)
 
 u_queue parse_queue;
 b_queue download_queue;
+hash_table links_visited;
 char* from_link = NULL;
 char* to_link = NULL;
 
-void parse_page(struct b_queue* queue)
+/*
+The function for the hash table.
+
+@params:
+unsigned char *str, the string to be hashed (url)
+@return:
+unsigned long, the computed key
+
+**NOTE: this is the djb2 function created by Dan Bernstein for strings.**
+Source: http://www.cse.yorku.ca/~oz/hash.html
+*/
+unsigned long hash(unsigned char *str)
 {
+    unsigned long hash = 5381;
+    int c;
     
+    while (c = *str++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
+}
+
+void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
+{
+    char* search = "link:";
+    char* save;
+    char* found;
+    char* token = strtok_r(page, search, &save);
     
-    
+    while(token != NULL) {
+    	if(strncmp(token,search,5) == 0) {
+    		found = strstr(token, search);
+    		b_enqueue(&download_queue, found);
+    		_edge_fn(from_link, to_link);
+    	}
+    	token = strtok_r(NULL, search, &save);
+    }
 }
 
 void* downloader(char* (*_fetch_fn)(char *url))
@@ -212,11 +260,11 @@ void* downloader(char* (*_fetch_fn)(char *url))
 void* parser(void (*_edge_fn)(char *from, char *to))
 {
     pthread_mutex_lock(&parse_queue->lock);
-    while(u_isempty(&parse_queue)) {
+    while(u_isempty(&parse_queue) || b_isfull(&download_queue)) {
     	pthread_cond_wait(&parse_queue->full, &parse_queue->lock);
     }
     char* page = u_dequeue(&download_queue);
-    parse_page(page);
+    parse_page(page, _edge_fn);
 
     pthread_cond_signal(&parse_queue->full);
     pthread_mutex_unlock(&parse_queue->lock);
@@ -239,10 +287,10 @@ int crawl(char *start_url,
 
     int i = 0;
     for(; i < download_workers; i++) {
-    	pthread_create(&downloaders[i], NULL, downloader, NULL);
+    	pthread_create(&downloaders[i], NULL, (void*)downloader, (void*)(*_fetch_fn)(char *url));
     }
     for(i = 0; i < parse_workers; i++) {
-    	pthread_create(&parsers[i], NULL, parser, NULL);
+    	pthread_create(&parsers[i], NULL, (void*)parser, (void*)(*_edge_fn)(char *from, char *to));
     }
     /*for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
@@ -251,12 +299,10 @@ int crawl(char *start_url,
     	pthread_join(parsers[i], NULL);
     }*/
 
-
-
-    while( !(isempty(parse_queue) && isempty(download_queue))  )
+    /*while( !(isempty(parse_queue) && isempty(download_queue))  )
     {
 
 
-    }
+    }*/
     return 0;
 }
