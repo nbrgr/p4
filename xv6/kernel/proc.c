@@ -298,6 +298,7 @@ exit(void)
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
+  release(&ptable.lock);
   sched();
   panic("zombie exit");
 }
@@ -312,7 +313,6 @@ wait(void)
 
   if (!(proc->children))
   {
-    cprintf("No Children\n");
     return -1;
   }
 
