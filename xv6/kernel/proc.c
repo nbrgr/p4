@@ -160,6 +160,7 @@ fork(void)
 }
 
 // This is a copy of fork.
+int 
 clone(void (*fcn)(void*), void *arg, void* stack)
 {
   int i, pid;
