@@ -126,8 +126,8 @@ char* url, the url used to later fetch the page content.
 void b_enqueue(struct b_queue* queue, char* url)
 {
     queue->array[queue->back] = url;
-		queue->back++;
-		queue->back = queue->back % queue->max;
+    queue->back++;
+    queue->back = queue->back % queue->max;
     queue->size++;
 }
 
@@ -151,8 +151,8 @@ char* u_dequeue(struct u_queue* queue)
 char* b_dequeue(struct b_queue* queue)
 {
     char* url = queue->array[queue->front];
-		queue->front++;
-		queue->front = queue->front % queue->max;
+    queue->front++;
+    queue->front = queue->front % queue->max;
     return url;
 }
 
@@ -167,36 +167,42 @@ int u_isempty(struct u_queue* queue)
 
 int b_isempty(struct b_queue* queue)
 {
-	if (!queue->size)
-	{
-			return 1;
-	}
-	return 0;
+    if (!queue->size)
+    {
+	return 1;
+    }
+    return 0;
 }
 
 int b_isfull(struct b_queue* queue)
 {
-	if (queue->size == queue->max)
-	{
-		return 1;
-	}
-	return 0;
+    if (queue->size == queue->max)
+    {
+	return 1;
+    }
+    return 0;
 }
 
 u_queue parse_queue;
 b_queue download_queue;
-char * (*_fetch_fn)(char *url)
-void (*_edge_fn)(char *from, char *to)
+char* from_link = NULL;
+char* to_link = NULL;
 
+void parse_page(struct b_queue* queue)
+{
+    
+    
+    
+}
 
-void* downloader(char * (*_fetch_fn)(char *url))
+void* downloader(char* (*_fetch_fn)(char *url))
 {
     pthread_mutex_lock(&download_queue->lock);
-    while(download_queue->size == 0) {
+    while(b_isempty(&download_queue)) {
     	pthread_cond_wait(&download_queue->full, &download_queue->lock);
     }
     char* content = b_dequeue(&download_queue);
-    content = fetch(content);
+    content = _fetch_fn(content);
     u_enqueue(&parse_queue, content);
 
     pthread_cond_signal(&download_queue->empty);
@@ -205,15 +211,15 @@ void* downloader(char * (*_fetch_fn)(char *url))
 
 void* parser(void (*_edge_fn)(char *from, char *to))
 {
-    q_queue pq = parse_queue;
-    pthread_mutex_lock(&pq->lock);
-    while(pq->size == pq->max) {
-    	pthread_cond_wait(&pq->empty, &pq->lock);
+    pthread_mutex_lock(&parse_queue->lock);
+    while(u_isempty(&parse_queue)) {
+    	pthread_cond_wait(&parse_queue->full, &parse_queue->lock);
     }
+    char* page = u_dequeue(&download_queue);
+    parse_page(page);
 
-
-    pthread_cond_signal(&pq->full);
-    pthread_mutex_unlock(&pq->lock);
+    pthread_cond_signal(&parse_queue->full);
+    pthread_mutex_unlock(&parse_queue->lock);
 }
 
 int crawl(char *start_url,
@@ -226,9 +232,10 @@ int crawl(char *start_url,
     pthread_t downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t parsers = malloc(sizeof(pthread_t) * parse_workers);
 
-		u_queue_init(&parse_queue);
-		b_queue_init(&download_queue, queue_size);
-		b_enqueue(start_url);
+    u_queue_init(&parse_queue);
+    b_queue_init(&download_queue, queue_size);
+    b_enqueue(start_url);
+    from_link = start_url;
 
     int i = 0;
     for(; i < download_workers; i++) {
@@ -246,7 +253,7 @@ int crawl(char *start_url,
 
 
 
-    while(isempty(parse_queue) && isempty(download_queue))
+    while( !(isempty(parse_queue) && isempty(download_queue))  )
     {
 
 
