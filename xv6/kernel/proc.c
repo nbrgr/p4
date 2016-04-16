@@ -187,6 +187,8 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->tf->eax = 0;
   np->tf->eip = (uint)fcn;
 
+  cprintf("eip: %p, ebp: %p, esp: %p",np->tf->eip,np->tf->ebp,np->tf->esp);
+
   for(i = 0; i < NOFILE; i++)
     if(proc->ofile[i])
       np->ofile[i] = filedup(proc->ofile[i]);
