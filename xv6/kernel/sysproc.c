@@ -22,7 +22,7 @@ int sys_clone(void)
   if (argint(2,stack) == -1)
     return -1;
 
-  return clone(fcn, arg, stack);
+  return clone((void*)fcn, (void*)arg, (void*)stack);
 }
 
 int sys_join(void)
@@ -31,7 +31,7 @@ int sys_join(void)
   if (argint(0,stack) == -1)
     return -1;
 
-  return join(stack);
+  return join((void**)stack);
 }
 
 int
