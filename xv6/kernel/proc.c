@@ -173,9 +173,6 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   if (((uint)stack % PGSIZE != 0) || ((uint)proc->sz - (uint)stack == PGSIZE/2))
     return -1;
 
-  cprintf("%d", stack);
-
-
   np->pgdir = proc->pgdir;
   np->sz = proc->sz;
   np->parent = proc;
@@ -190,6 +187,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   memmove((void*)np->tf->esp, stack, PGSIZE);
   np->tf->esp = (uint)&ustack[1022];
   np->tf->ebp = np->tf->esp;
+  np->stack = stack;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -206,15 +204,32 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   return pid;
 }
 
-// Exit the current process.  Does not return.
-// An exited process remains in the zombie state
-// until its parent calls wait() to find out it exited.
+
 
 int join(void** stack)
 {
-  return 0;
+  int found = 0;
+  int pid = 0;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent != proc || p->stack != *stack)
+      continue;
+    found = 1;
+      *stack = p->stack;
+      release(&ptable.lock);
+      return waitpid(p->pid);
+    }
+  }
+  if (!found)
+  {
+    release(&ptable.lock);
+    return -1;
+  }
 }
 
+// Exit the current process.  Does not return.
+// An exited process remains in the zombie state
+// until its parent calls wait() to find out it exited.
 void
 exit(void)
 {
@@ -223,6 +238,7 @@ exit(void)
 
   if(proc == initproc)
     panic("init exiting");
+
 
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){
@@ -269,6 +285,46 @@ wait(void)
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != proc)
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        // Found one.
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->state = UNUSED;
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || proc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(proc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+
+int waitpid(int cpid)
+{
+  struct proc *p;
+  int havekids, pid;
+
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for zombie children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != proc || p->pid != cpid)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
