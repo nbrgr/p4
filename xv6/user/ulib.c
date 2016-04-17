@@ -4,7 +4,8 @@
 #include "user.h"
 #include "x86.h"
 
-extern malloc;
+extern void* malloc(uint);
+
 
 void lock_acquire(lock_t* lock)
 {
