@@ -225,6 +225,7 @@ int join(void** stack)
         pid = p->pid;
         p->state = UNUSED;
         *stack = p->stack;
+        cprintf("%p %p",stack, *stack);
         release(&ptable.lock);
         return pid;
       }
