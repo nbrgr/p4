@@ -131,7 +131,8 @@ void b_queue_init(b_queue* queue, int queue_size)
 
 void hash_init(hashtable* tbl, int size) {
 	tbl->max = size;
-	tbl->table = malloc(sizeof(bucket*) * tbl->max);
+	printf("size done\n");
+	tbl->table = malloc(sizeof(bucket*) * size);
 }
 
 /*
