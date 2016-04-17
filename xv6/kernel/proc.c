@@ -231,7 +231,7 @@ int join(void** stack)
         p->killed = 0;
         *stack = p->stack;
         release(&ptable.lock);
-        cprintf("%d",pid);
+        cprintf(" %d\n",pid);
         return pid;
       }
     }
