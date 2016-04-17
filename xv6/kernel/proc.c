@@ -218,7 +218,7 @@ int join(void** stack)
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != proc || proc->pgdir != p->pgdir)
+      if(p->parent != proc || proc->pgdir != p->pgdir || p == proc)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
