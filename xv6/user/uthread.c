@@ -22,6 +22,7 @@ int thread_join()
   if (stack == NULL)
     return -1;
   free(stack);
+  printf(1, "%d\n", pid);
   return pid;
 }
 
