@@ -33,8 +33,7 @@ lock_init(struct lock_t *lk)
 
 void
 lock_acquire(struct lock_t *lk)
-{
-  
+{  
   while(xchg(&lk->locked, 1) != 0)
     ;
 }
