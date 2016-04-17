@@ -104,7 +104,6 @@ Initializes the lock and condition variables it contains.
 */
 void u_queue_init(u_queue* initqueue)
 {
-	initqueue = malloc(sizeof(u_queue));
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
@@ -120,7 +119,6 @@ the mutex and condition variables using the pthread functions.
 */
 void b_queue_init(b_queue* queue, int queue_size)
 {
-	queue = malloc(sizeof(b_queue));
 	queue->front = 0;
 	queue->back = 0;
 	queue->size = 0;
@@ -132,10 +130,7 @@ void b_queue_init(b_queue* queue, int queue_size)
 }
 
 void hash_init(hashtable* tbl, int size) {
-	printf("starting hash_init\n");
-	tbl = malloc(sizeof(hashtable));
 	tbl->max = size;
-	printf("size done\n");
 	tbl->table = malloc(sizeof(bucket*) * size);
 }
 
@@ -352,10 +347,16 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void* (*_edge_fn)(char *from, char *to))
 {
-	
+    printf("Starting crawl\n");
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
+    parse_queue = malloc(sizeof(u_queue));
+    printf("parse_queue\n");
+    download_queue = malloc(sizeof(b_queue));
+    printf("download_queue\n");
+    links_visited = malloc(sizeof(hashtable));
 
+    printf("done init\n");
     u_queue_init(&parse_queue);
     b_queue_init(&download_queue, queue_size);
     b_enqueue(&download_queue, start_url);
