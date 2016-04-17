@@ -104,7 +104,7 @@ Initializes the lock and condition variables it contains.
 */
 void u_queue_init(u_queue* initqueue)
 {
-	//initqueue = malloc(sizeof(u_queue));
+	initqueue = malloc(sizeof(u_queue));
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
@@ -120,7 +120,7 @@ the mutex and condition variables using the pthread functions.
 */
 void b_queue_init(b_queue* queue, int queue_size)
 {
-	
+	queue = malloc(sizeof(b_queue));
 	queue->front = 0;
 	queue->back = 0;
 	queue->size = 0;
