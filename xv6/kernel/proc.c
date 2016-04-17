@@ -211,7 +211,6 @@ int join(void** stack)
 {
   struct proc *p;
   int havekids, pid;
-  procdump();
 
   acquire(&ptable.lock);
   for(;;){
