@@ -3,9 +3,9 @@
 
 struct stat;
 
-struct lock_t {
+typedef struct {
   uint locked;       // Is the lock held?
-};
+} lock_t;
 
 // system calls
 int fork(void);
@@ -45,9 +45,9 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
-void lock_acquire(lock_t* lk);
-void lock_release(lock_t* lk);
-void lock_init(lock_t* lk);
+void lock_acquire(lock_t*);
+void lock_release(lock_t*);
+void lock_init(lock_t*);
 int thread_create(void (*start_routine)(void*), void *arg);
 int thread_join();
 
