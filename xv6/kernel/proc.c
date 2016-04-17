@@ -47,10 +47,6 @@ found:
   p->pid = nextpid++;
   release(&ptable.lock);
 
-  p->children = 0;
-  p->threads = 0;
-  p->isthread = 0;
-
   // Allocate kernel stack if possible.
   if((p->kstack = kalloc()) == 0){
     p->state = UNUSED;
@@ -148,7 +144,6 @@ fork(void)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
-  proc->children++;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -182,9 +177,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
-  np->isthread = 1;
 
-  proc->threads++;
 
   uint* ustack = (uint *)stack;
 
@@ -220,17 +213,12 @@ int join(void** stack)
   struct proc *p;
   int havekids, pid;
 
-  if (!(proc->threads))
-  {
-    return -1;
-  }
-
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != proc || !(proc->isthread))
+      if(p->parent != proc || proc->pgdir != p->pgdir)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
@@ -313,11 +301,6 @@ wait(void)
 {
   struct proc *p;
   int havekids, pid;
-
-  if (!(proc->children))
-  {
-    return -1;
-  }
 
   acquire(&ptable.lock);
   for(;;){
