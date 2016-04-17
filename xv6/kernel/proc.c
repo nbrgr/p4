@@ -213,6 +213,9 @@ int join(void** stack)
   struct proc *p;
   int havekids, pid;
 
+  if (((uint)stack % PGSIZE != 0) || ((uint)proc->sz - (uint)stack == PGSIZE/2))
+    return -1;
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for zombie children.
