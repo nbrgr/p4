@@ -4,9 +4,6 @@
 #include "user.h"
 #include "x86.h"
 
-extern void* malloc(uint);
-
-
 void lock_acquire(lock_t* lock)
 {
   while(xchg(lock, 1) == 1);
@@ -14,7 +11,7 @@ void lock_acquire(lock_t* lock)
 
 void lock_release(lock_t* lock)
 {
-  *lock = 0;
+  xchg(lock, 0);
 }
 
 void lock_init(lock_t* lock)
