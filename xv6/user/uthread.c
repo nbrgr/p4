@@ -24,7 +24,6 @@ int thread_create(void (*start_routine)(void*), void *arg)
 {
   void* stack = NULL;
   stack = malloc(4096);
-  printf(1, "%p", stack);
   if (stack == NULL)
     return -1;
   return clone(start_routine, arg, stack);
