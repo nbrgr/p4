@@ -22,10 +22,10 @@ USER_PROGS := $(addprefix user/, $(USER_PROGS))
 
 # user library files
 USER_LIBS := \
-	ulib.o\
 	usys.o\
 	printf.o\
-	umalloc.o
+	umalloc.o\
+	ulib.o
 
 USER_LIBS := $(addprefix user/, $(USER_LIBS))
 
