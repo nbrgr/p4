@@ -19,6 +19,14 @@ void lock_init(lock_t* lock)
   *lock = 0;
 }
 
+int thread_create(void (*start_routine)(void*), void *arg)
+{
+  void* stack = malloc(PGSIZE);
+  if (stack == NULL)
+    return -1;
+  return clone(start_routine, arg, stack);
+}
+
 char*
 strcpy(char *s, char *t)
 {
