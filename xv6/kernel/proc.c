@@ -212,6 +212,8 @@ int join(void** stack)
   struct proc *p;
   int havekids, pid;
 
+  cprintf("stack: %d\n",stack);
+
   if (((uint)stack % PGSIZE != 0) || ((uint)proc->sz - (uint)stack == PGSIZE/2))
     return -1;
 
