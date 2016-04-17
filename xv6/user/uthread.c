@@ -8,10 +8,16 @@
 int thread_create(void (*start_routine)(void*), void *arg)
 {
   void* stack = NULL;
-  stack = malloc(4096);
+  int pid = -1;
+  stack = malloc(2 * 4096);
+  if ((uint)stack % 4096 != 0)
+  {
+    stack = stack + (4096 - (uint)stack % 4096);
+  }
   if (stack == NULL)
-    return -1;
-  return clone(start_routine, arg, stack);
+    return pid;
+  pid = clone(start_routine, arg, stack);
+  return pid;
 }
 
 int thread_join()
@@ -31,6 +37,7 @@ void
 lock_init(lock_t *lk)
 {
   lk->locked = 0;
+
 }
 
 void

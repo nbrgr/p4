@@ -1,0 +1,66 @@
+starting build
+starting clone
+starting badclone
+starting join4
+starting thread2
+starting join3
+starting join2
+starting clone3
+starting clone2
+starting stack
+starting size
+starting multi
+starting noexit
+starting join
+starting thread
+starting locks
+test build PASSED
+ (build xv6 using make)
+
+test clone PASSED (9 of 9)
+ (clone and verify that address space is shared)
+
+test badclone PASSED (6 of 6)
+ (clone with bad stack argument)
+
+test join4 PASSED (3 of 3)
+ (join, not wait, should handle threads)
+
+test thread2 PASSED (7 of 7)
+ (memory leaks from thread library?)
+
+test join3 PASSED (3 of 3)
+ (join should not handle child processes (forked))
+
+test join2 PASSED (6 of 6)
+ (join argument checking)
+
+test clone3 PASSED (3 of 3)
+ (clone copies file descriptors, but doesn't share)
+
+test clone2 PASSED (6 of 6)
+ (clone and play with the argument)
+
+test stack PASSED (8 of 8)
+ (set up stack correctly (and without extra items))
+
+test size PASSED (7 of 7)
+ (check that address space size is updated in threads)
+
+test multi PASSED (8 of 8)
+ (multiple threads with some depth of function calls)
+
+test noexit PASSED (7 of 7)
+ (no exit call in thread, should trap at bogus address)
+
+test join PASSED (9 of 9)
+ (clone and join syscalls)
+
+test thread PASSED (10 of 10)
+ (thread user library functions)
+
+test locks PASSED (8 of 8)
+ (test lock correctness)
+
+Overall 16 of 16
+Points 100 of 100

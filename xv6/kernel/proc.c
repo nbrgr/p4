@@ -53,6 +53,7 @@ found:
     return 0;
   }
   sp = p->kstack + KSTACKSIZE;
+  p->isthread = 0;
   
   // Leave room for trap frame.
   sp -= sizeof *p->tf;
@@ -107,7 +108,7 @@ int
 growproc(int n)
 {
   uint sz;
-  
+
   sz = proc->sz;
   if(n > 0){
     if((sz = allocuvm(proc->pgdir, sz, sz + n)) == 0)
@@ -144,6 +145,7 @@ fork(void)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
+  np->isthread = 0;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -177,6 +179,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
+  np->isthread = 1;
 
 
   uint* ustack = (uint *)stack;

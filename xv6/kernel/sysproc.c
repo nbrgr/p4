@@ -32,6 +32,8 @@ int sys_join(void)
   int stack;
   if (argint(0, &stack) == -1)
     return -1;
+  if (stack + 4 > proc->sz)
+    return -1;
 
   return join((void**)stack);
 }
@@ -73,6 +75,10 @@ sys_sbrk(void)
 
   if(argint(0, &n) < 0)
     return -1;
+  if (proc->isthread)
+  {
+    proc->sz = proc->parent->sz;
+  }
   addr = proc->sz;
   if(growproc(n) < 0)
     return -1;
