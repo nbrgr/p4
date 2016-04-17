@@ -104,6 +104,7 @@ Initializes the lock and condition variables it contains.
 */
 void u_queue_init(u_queue* initqueue)
 {
+	//initqueue = malloc(sizeof(u_queue));
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
@@ -119,6 +120,7 @@ the mutex and condition variables using the pthread functions.
 */
 void b_queue_init(b_queue* queue, int queue_size)
 {
+	
 	queue->front = 0;
 	queue->back = 0;
 	queue->size = 0;
@@ -131,6 +133,7 @@ void b_queue_init(b_queue* queue, int queue_size)
 
 void hash_init(hashtable* tbl, int size) {
 	printf("starting hash_init\n");
+	tbl = malloc(sizeof(hashtable));
 	tbl->max = size;
 	printf("size done\n");
 	tbl->table = malloc(sizeof(bucket*) * size);
