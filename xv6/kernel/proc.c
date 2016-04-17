@@ -213,11 +213,6 @@ int join(void** stack)
   int havekids, pid;
   procdump();
 
-  if (((uint)stack % PGSIZE != 0) || ((uint)proc->sz - (uint)stack == PGSIZE/2))
-    return -1;
-
-
-
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for zombie children.
