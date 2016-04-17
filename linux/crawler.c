@@ -310,7 +310,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         content = _fetch_fn(content);
         u_enqueue(&parse_queue, content);
 
-        if(u_isempty(parse_queue) && b_isempty(download_queue)) {
+        if(u_isempty(&parse_queue) && b_isempty(&download_queue)) {
         	finished = 1;
         }
 
@@ -330,7 +330,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
         char* page = b_dequeue(&download_queue);
         parse_page(page, _edge_fn);
 
-        if(u_isempty(parse_queue) && b_isempty(download_queue)) {
+        if(u_isempty(&parse_queue) && b_isempty(&download_queue)) {
         	finished = 1;
         }
 
@@ -347,6 +347,7 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void* (*_edge_fn)(char *from, char *to))
 {
+	
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
 
