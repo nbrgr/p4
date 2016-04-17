@@ -34,6 +34,7 @@ int thread_join()
   void** stack = NULL;
   int pid = 0;
   pid = join(stack);
+  printf("%p",stack);
   if (stack == NULL)
     return -1;
   free(stack);
