@@ -21,7 +21,7 @@ typedef struct b_queue b_queue;
 
 void u_queue_init(u_queue* initqueue);
 void b_queue_init(b_queue* queue, int queue_size);
-unsigned long hash(unsigned char *str);
+unsigned long hash(char *str);
 void hash_init(hashtable *tbl, int size);
 int hash_find_insert(hashtable *tbl, char* link);
 void u_enqueue(u_queue* queue, char* url);
@@ -147,18 +147,21 @@ unsigned long, the computed key
 **NOTE: this is the djb2 function created by Dan Bernstein for strings.**
 Source: http://www.cse.yorku.ca/~oz/hash.html
 */
-unsigned long hash(unsigned char *str)
+unsigned long hash(char *str)
 {
         unsigned long hash = 5381;
         int c;
-    
-        while (c = *str++)
+        int i;
+        for (i = 0; str[i] != 0; i++)
+        {
+            c = str[i];
             hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+        }
 
         return hash;
 }
 
-int hash_find_insert(hash_table tbl*, char* link) {
+int hash_find_insert(hashtable *tbl, char* link) {
         unsigned long key = hash(link) % (tbl->max);
         int found = 0;
         int insert = 0;
@@ -194,10 +197,10 @@ void u_enqueue(struct u_queue* queue, char* url)
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
     if (newnode == NULL) {
-    	printf(stderr, "Malloc failed\n");
+    	fprintf(stderr, "Malloc failed\n");
     	exit(1);
     }
-    newnode->content = content;
+    newnode->content = url;
     newnode->next = queue->back;
     queue->back = newnode;
     queue->size += 1;
@@ -272,7 +275,7 @@ int b_isfull(struct b_queue* queue)
 
 u_queue parse_queue;
 b_queue download_queue;
-hash_table* links_visited;
+hashtable* links_visited;
 char* from_link = NULL;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
