@@ -4,6 +4,8 @@
 #include "user.h"
 #include "x86.h"
 
+extern malloc;
+
 void lock_acquire(lock_t* lock)
 {
   while(xchg(lock, 1) == 1);
