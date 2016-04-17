@@ -77,6 +77,7 @@ struct proc {
   void* stack;
   int children;
   int threads;
+  int isthread;
 };
 
 // Process memory is laid out contiguously, low addresses first:
