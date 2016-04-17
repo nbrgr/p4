@@ -93,8 +93,6 @@ struct b_queue {
 	pthread_cond_t empty;
 };
 
-
-
 /*
 void u_queue_init: Given an pointer to an uninitialized queue, inits it.
 
@@ -277,7 +275,7 @@ u_queue parse_queue;
 b_queue download_queue;
 hashtable* links_visited;
 char* from_link = NULL;
-int finished = 0;
+volatile int finished = 0;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
@@ -298,7 +296,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     }
 }
 
-void* downloader(char* (*_fetch_fn)(char *url))
+void downloader(char* (*_fetch_fn)(char *url))
 {
     while(!finished)
     {
@@ -316,17 +314,19 @@ void* downloader(char* (*_fetch_fn)(char *url))
     }
 }
 
-void* parser(void (*_edge_fn)(char *from, char *to))
+void parser(void (*_edge_fn)(char *from, char *to))
 {
-    pthread_mutex_lock(&parse_queue.lock);
-    while(u_isempty(&parse_queue) || b_isfull(&download_queue)) {
-    	pthread_cond_wait(&parse_queue.full, &parse_queue.lock);
-    }
-    char* page = b_dequeue(&download_queue);
-    parse_page(page, _edge_fn);
+    while(!finished) {
+        pthread_mutex_lock(&parse_queue.lock);
+        while(u_isempty(&parse_queue) || b_isfull(&download_queue)) {
+    	    pthread_cond_wait(&parse_queue.full, &parse_queue.lock);
+        }
+        char* page = b_dequeue(&download_queue);
+        parse_page(page, _edge_fn);
 
-    pthread_cond_signal(&parse_queue.full);
-    pthread_mutex_unlock(&parse_queue.lock);
+        pthread_cond_signal(&parse_queue.full);
+        pthread_mutex_unlock(&parse_queue.lock);
+    }
 }
 
 int crawl(char *start_url,
