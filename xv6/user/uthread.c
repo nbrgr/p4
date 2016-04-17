@@ -21,11 +21,9 @@ int thread_join()
   pid = join(&stack);
   if (stack == NULL)
   {
-    printf(1, "join failed");
     return -1;
   }
   free(stack);
-  printf(1, "%d\n", pid);
   return pid;
 }
 
