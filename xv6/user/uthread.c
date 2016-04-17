@@ -26,20 +26,20 @@ int thread_join()
 }
 
 void
-lock_init(struct lock_t *lk)
+lock_init(lock_t *lk)
 {
   lk->locked = 0;
 }
 
 void
-lock_acquire(struct lock_t *lk)
+lock_acquire(lock_t *lk)
 {  
   while(xchg(&lk->locked, 1) != 0)
     ;
 }
 
 void
-lock_release(struct lock_t *lk)
+lock_release(lock_t *lk)
 {
   xchg(&lk->locked, 0);
 }
