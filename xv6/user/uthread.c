@@ -4,11 +4,6 @@
 #include "user.h"
 #include "x86.h"
 
-struct lock_t {
-  uint lock;
-  uint pid;
-};
-
 
 void lock_acquire(lock_t* lock)
 {

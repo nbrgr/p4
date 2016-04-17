@@ -3,7 +3,7 @@
 
 struct stat;
 
-struct lock_t;
+typedef unsigned int lock_t;
 
 // system calls
 int fork(void);
