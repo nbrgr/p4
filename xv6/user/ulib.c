@@ -25,7 +25,7 @@ void lock_init(lock_t* lock)
 int thread_create(void (*start_routine)(void*), void *arg)
 {
   void* stack = NULL;
-  stack = malloc(4096);
+  //stack = malloc(4096);
   if (stack == NULL)
     return -1;
   return clone(start_routine, arg, stack);
