@@ -37,5 +37,5 @@ int thread_join()
   if (stack == NULL)
     return -1;
   free(stack);
-  return 0;
+  return pid;
 }
