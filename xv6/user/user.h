@@ -3,7 +3,9 @@
 
 struct stat;
 
-typedef unsigned int lock_t;
+struct lock_t {
+  uint locked;       // Is the lock held?
+};
 
 // system calls
 int fork(void);

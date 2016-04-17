@@ -5,21 +5,6 @@
 #include "x86.h"
 
 
-void lock_acquire(lock_t* lock)
-{
-  while(xchg(lock, 1) == 1);
-}
-
-void lock_release(lock_t* lock)
-{
-  xchg(lock, 0);
-}
-
-void lock_init(lock_t* lock)
-{
-  *lock = 0;
-}
-
 int thread_create(void (*start_routine)(void*), void *arg)
 {
   void* stack = NULL;
@@ -38,4 +23,24 @@ int thread_join()
     return -1;
   free(stack);
   return pid;
+}
+
+void
+lock_init(struct lock_t *lk)
+{
+  lk->locked = 0;
+}
+
+void
+lock_acquire(struct lock_t *lk)
+{
+  
+  while(xchg(&lk->locked, 1) != 0)
+    ;
+}
+
+void
+lock_release(struct lock_t *lk)
+{
+  xchg(&lk->locked, 0);
 }
