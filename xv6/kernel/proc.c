@@ -209,6 +209,7 @@ clone(void (*fcn)(void*), void *arg, void* stack)
   pid = np->pid;
   np->state = RUNNABLE;
   safestrcpy(np->name, proc->name, sizeof(proc->name));
+  cprintf("%d",pid);
   return pid;
 }
 
@@ -245,6 +246,7 @@ int join(void** stack)
         p->killed = 0;
         *stack = p->stack;
         release(&ptable.lock);
+        cprintf("%d",pid);
         return pid;
       }
     }
