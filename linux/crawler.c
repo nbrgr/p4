@@ -354,9 +354,10 @@ int crawl(char *start_url,
     u_queue_init(&parse_queue);
     b_queue_init(&download_queue, queue_size);
     b_enqueue(&download_queue, start_url);
-    printf("queues init and enqueue\n");
     from_link = start_url;
+    printf("link\n");
     hash_init(links_visited, queue_size);
+    printf("hash_init\n");
     hash_find_insert(links_visited, start_url);
     
     printf("Done initializing\n");
