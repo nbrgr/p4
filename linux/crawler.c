@@ -347,10 +347,12 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void* (*_edge_fn)(char *from, char *to))
 {
+    printf("Starting crawl\n");
 	
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
 
+    printf("threads malloced\n");
     u_queue_init(&parse_queue);
     b_queue_init(&download_queue, queue_size);
     b_enqueue(&download_queue, start_url);
