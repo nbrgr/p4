@@ -32,9 +32,9 @@ int thread_create(void (*start_routine)(void*), void *arg)
 
 int thread_join()
 {
-  void** stack = NULL;
+  void* stack;
   int pid = 0;
-  pid = join(stack);
+  pid = join(&stack);
   if (stack == NULL)
     return -1;
   free(stack);
