@@ -1,8 +1,6 @@
 #ifndef _USER_H_
 #define _USER_H_
 
-const uint PGSIZE = 4096;
-
 struct stat;
 
 typedef unsigned int lock_t;
