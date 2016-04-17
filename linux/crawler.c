@@ -6,6 +6,52 @@
 #include <stdint.h>
 #include <pthread.h>
 
+//Forward declarations:
+struct u_queue_node;
+struct bucket;
+struct hashtable;
+struct u_queue;
+struct b_queue;
+
+typedef struct u_queue_node u_queue_node;
+typedef struct bucket bucket;
+typedef struct hashtable hashtable;
+typedef struct u_queue u_queue;
+typedef struct b_queue b_queue;
+
+void u_queue_init(u_queue* initqueue);
+void b_queue_init(b_queue* queue, int queue_size);
+unsigned long hash(unsigned char *str);
+void hash_init(hashtable *tbl, int size);
+int hash_find_insert(hashtable *tbl, char* link);
+void u_enqueue(u_queue* queue, char* url);
+void b_enqueue(b_queue* queue, char* url);
+char* u_dequeue(u_queue* queue);
+int u_isempty(u_queue* queue);
+int b_isfull(b_queue* queue);
+
+/*
+This is a single node for the unbounded queue type. Has two members:
+char* content
+and
+u_queue_node* next
+A string that contains the content of that node and a pointer to the next node in the queue.
+*/
+struct u_queue_node {
+    char* content;
+    u_queue_node* next;
+};
+
+struct bucket {
+    bucket* next;
+    char* link;
+};
+
+struct hashtable {
+    bucket** table;
+    int max;
+};
+
 /*
 In the specification for the problem, there is an unbounded queue for downloaders to send work
 to parers. The parse_queue implements this unbounded queue. All of the unbounded queue functions
@@ -20,14 +66,14 @@ to point to the end of the queue (back);
 Also contains a int size in order to show whether or not the queue is empty or not.
 It also contains a single mutex and two condition variables for thread messaging.
 */
-typedef struct {
+struct u_queue {
 	u_queue_node* front;
 	u_queue_node* back;
 	int size;
 	pthread_mutex_t lock;
 	pthread_cond_t full;
 	pthread_cond_t empty;
-} u_queue;
+} ;
 
 /*
 This is the struct for the bounded queue, which is used by download_queue. It allows the parsers
@@ -36,7 +82,7 @@ It has an array that functions as the bounded queue and two integers to track po
 int size determines whether or not the queue is empty or full.
 It contains a mutex, lock, and two condition variables, full and empty.
 */
-typedef struct {
+struct b_queue {
 	char** array;
 	int front;
 	int back;
@@ -45,29 +91,9 @@ typedef struct {
 	pthread_mutex_t lock;
 	pthread_cond_t full;
 	pthread_cond_t empty;
-} b_queue;
+};
 
-/*
-This is a single node for the unbounded queue type. Has two members:
-char* content
-and
-u_queue_node* next
-A string that contains the content of that node and a pointer to the next node in the queue.
-*/
-struct u_queue_node {
-	char* content;
-	u_queue_node* next;
-}
 
-typedef struct {
-	bucket* next;
-	char* link;
-} bucket;
-
-typedef struct {
-	bucket** table;
-	int max;
-} hash_table;
 
 /*
 void u_queue_init: Given an pointer to an uninitialized queue, inits it.
@@ -83,9 +109,9 @@ void u_queue_init(u_queue* initqueue)
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
-	pthread_mutex_init(initqueue->lock);
-	pthread_cond_init(initqueue->full);
-	pthread_cond_init(initqueue->empty);
+	pthread_mutex_init(&initqueue->lock, NULL);
+	pthread_cond_init(&initqueue->full, NULL);
+	pthread_cond_init(&initqueue->empty, NULL);
 }
 
 /*
@@ -100,12 +126,12 @@ void b_queue_init(b_queue* queue, int queue_size)
 	queue->size = 0;
 	queue->max = queue_size;
 	queue->array = malloc(sizeof(char*) * queue_size);
-	pthread_mutex_init(queue->lock);
-	pthread_cond_init(queue->full);
-	pthread_cond_init(queue->empty);
+	pthread_mutex_init(&queue->lock, NULL);
+	pthread_cond_init(&queue->full, NULL);
+	pthread_cond_init(&queue->empty, NULL);
 }
 
-void hash_init(hash_table* tbl, size) {
+void hash_init(hashtable* tbl, int size) {
 	tbl->max = size;
 	tbl->table = malloc(sizeof(bucket*) * max);
 }
