@@ -350,9 +350,9 @@ int crawl(char *start_url,
     printf("Starting crawl\n");
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
-    parse_queue = (u_queue*)malloc(sizeof(u_queue));
+    parse_queue = malloc(sizeof(struct u_queue));
     printf("parse_queue\n");
-    download_queue = (b_queue*)malloc(sizeof(b_queue));
+    download_queue = (b_queue*)malloc(sizeof(struct b_queue));
     printf("download_queue\n");
     links_visited = malloc(sizeof(hashtable));
 
