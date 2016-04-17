@@ -223,6 +223,7 @@ int join(void** stack)
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != proc || proc->pgdir != p->pgdir || p == proc)
+        cprintf("current pid: %d", p->pid);
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
