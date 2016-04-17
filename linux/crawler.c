@@ -300,6 +300,7 @@ void downloader(char* (*_fetch_fn)(char *url))
 {
     while(!finished)
     {
+    	
         pthread_mutex_lock(&download_queue.lock);
         while(b_isempty(&download_queue)) {
         	pthread_cond_wait(&download_queue.full, &download_queue.lock);
@@ -309,6 +310,10 @@ void downloader(char* (*_fetch_fn)(char *url))
         content = _fetch_fn(content);
         u_enqueue(&parse_queue, content);
 
+        if(u_isempty(parse_queue) && b_isempty(download_queue)) {
+        	finished = 1;
+        }
+
         pthread_cond_signal(&download_queue.empty);
         pthread_mutex_unlock(&download_queue.lock);
     }
@@ -317,6 +322,7 @@ void downloader(char* (*_fetch_fn)(char *url))
 void parser(void (*_edge_fn)(char *from, char *to))
 {
     while(!finished) {
+    	printf("start parser\n");
         pthread_mutex_lock(&parse_queue.lock);
         while(u_isempty(&parse_queue) || b_isfull(&download_queue)) {
     	    pthread_cond_wait(&parse_queue.full, &parse_queue.lock);
@@ -324,8 +330,13 @@ void parser(void (*_edge_fn)(char *from, char *to))
         char* page = b_dequeue(&download_queue);
         parse_page(page, _edge_fn);
 
+        if(u_isempty(parse_queue) && b_isempty(download_queue)) {
+        	finished = 1;
+        }
+
         pthread_cond_signal(&parse_queue.full);
         pthread_mutex_unlock(&parse_queue.lock);
+        printf("end parser\n");
     }
 }
 
@@ -345,6 +356,8 @@ int crawl(char *start_url,
     from_link = start_url;
     hash_init(links_visited, queue_size);
     hash_find_insert(links_visited, start_url);
+    
+    printf("Done initializing\n");
 
     int i = 0;
     for(; i < download_workers; i++) {
@@ -360,10 +373,5 @@ int crawl(char *start_url,
     	pthread_join(parsers[i], NULL);
     }*/
 
-    /*while( !(isempty(parse_queue) && isempty(download_queue))  )
-    {
-
-
-    }*/
     return 0;
 }
