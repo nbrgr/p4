@@ -166,6 +166,7 @@ unsigned long hash(char *str)
 }
 
 int hash_find_insert(hashtable *tbl, char* link) {
+	printf("start hash_insert\n");
         unsigned long key = hash(link) % (tbl->max);
         int found = 0;
         int insert = 0;
@@ -185,6 +186,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
                else {
                        copy = copy->next;
                }
+               printf("inserting\n");
         }
         return found;
 }
