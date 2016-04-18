@@ -401,7 +401,7 @@ int crawl(char *start_url,
     printf("end crawl\n");
     
     while(!finished) {
-    	pthread_cond_wait(till_fin_lock, till_finished);
+    	pthread_cond_wait(till_finished, till_fin_lock);
     }
     
     return 0;
