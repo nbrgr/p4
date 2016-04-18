@@ -292,8 +292,6 @@ b_queue* download_queue;
 hashtable* links_visited;
 char* from_link = NULL;
 volatile int finished = 0;
-pthread_cond_t* till_finished;
-pthread_mutex_t* till_fin_lock;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
@@ -371,10 +369,6 @@ int crawl(char *start_url,
     printf("start crawl\n");
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
-    till_finished = malloc(sizeof(pthread_cond_t));
-    till_fin_lock = malloc(sizeof(pthread_mutex_t));
-    pthread_cond_init(till_finished, NULL);
-    pthread_mutex_init(till_fin_lock, NULL);
     parse_queue = malloc(sizeof(u_queue));
     download_queue = (b_queue*)malloc(sizeof(b_queue));
     links_visited = malloc(sizeof(hashtable));
@@ -401,10 +395,6 @@ int crawl(char *start_url,
     }*/
 
     printf("end crawl\n");
-    
-    while(!finished) {
-    	pthread_cond_wait(till_finished, till_fin_lock);
-    }
     
     return 0;
 }
