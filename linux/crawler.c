@@ -70,9 +70,9 @@ struct u_queue {
 	u_queue_node* front;
 	u_queue_node* back;
 	int size;
-	pthread_mutex_t lock;
-	pthread_cond_t full;
-	pthread_cond_t empty;
+	pthread_mutex_t* lock;
+	pthread_cond_t* full;
+	pthread_cond_t* empty;
 } ;
 
 /*
@@ -88,9 +88,9 @@ struct b_queue {
 	int back;
 	int max;
 	int size;
-	pthread_mutex_t lock;
-	pthread_cond_t full;
-	pthread_cond_t empty;
+	pthread_mutex_t* lock;
+	pthread_cond_t* full;
+	pthread_cond_t* empty;
 };
 
 /*
