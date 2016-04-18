@@ -105,13 +105,16 @@ Initializes the lock and condition variables it contains.
 void u_queue_init(u_queue* initqueue)
 {
 	
-	initqueue->front = malloc(sizeof(u_queue_node));
+	//initqueue->front = malloc(sizeof(u_queue_node));
 	initqueue->front = NULL;
 	printf("front\n");
-	initqueue->back = malloc(sizeof(u_queue_node));
+	//initqueue->back = malloc(sizeof(u_queue_node));
 	initqueue->back = NULL;
 	printf("back\n");
 	initqueue->size = 0;
+	initqueue->lock = malloc(sizeof(pthread_mutex_t));
+	initqueue->full = malloc(sizeof(pthread_cond_t));
+	initqueue->empty = malloc(sizeof(pthread_cond_t));
 	pthread_mutex_init(initqueue->lock, NULL);
 	pthread_cond_init(initqueue->full, NULL);
 	pthread_cond_init(initqueue->empty, NULL);
