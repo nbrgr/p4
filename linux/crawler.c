@@ -357,9 +357,9 @@ int crawl(char *start_url,
     links_visited = malloc(sizeof(hashtable));
 
     printf("done init\n");
-    u_queue_init(&parse_queue);
-    b_queue_init(&download_queue, queue_size);
-    b_enqueue(&download_queue, start_url);
+    u_queue_init(parse_queue);
+    b_queue_init(download_queue, queue_size);
+    b_enqueue(download_queue, start_url);
     from_link = start_url;
     printf("link\n");
     hash_init(links_visited, queue_size);
