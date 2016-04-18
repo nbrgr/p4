@@ -174,6 +174,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
         
         if(tbl->table[key] == NULL) {
         	printf("start NULL\n");
+        	tbl->table[key] = malloc(sizeof(bucket));
         	(tbl->table[key])->next = NULL;
         	printf("next\n");
         	(tbl->table[key])->link = link;
