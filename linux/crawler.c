@@ -48,7 +48,7 @@ struct bucket {
 };
 
 struct hashtable {
-    bucket** table;
+    bucket* table;
     int max;
 };
 
@@ -137,7 +137,7 @@ void b_queue_init(b_queue* queue, int queue_size)
 
 void hash_init(hashtable* tbl, int size) {
 	tbl->max = size;
-	tbl->table = malloc(sizeof(bucket*) * size);
+	tbl->table = malloc(sizeof(bucket) * size);
 }
 
 /*
@@ -168,25 +168,33 @@ unsigned long hash(char *str)
 int hash_find_insert(hashtable *tbl, char* link) {
 	printf("start hash_insert\n");
         unsigned long key = hash(link) % (tbl->max);
+        printf("key: %s\n, key");
         int found = 0;
         int insert = 0;
-        bucket* copy = tbl->table[key];
         
-        while(!insert || !found) {
-               if(strcmp(copy->link, link) == 0) {
-                       found = 1;
-               }
-               else if(copy->next == NULL) {
-                       bucket* new_b = malloc(sizeof(bucket));
-                       new_b->next = NULL;
-                       new_b->link = link;
-                       copy->next = new_b;
-                       insert = 1;
-               }
-               else {
-                       copy = copy->next;
-               }
-               printf("inserting\n");
+        if(tbl->table[key] == NULL) {
+        	tbl->table[key]->next = NULL;
+        	tbl->table[key]->link = link;
+        }
+        else {
+        	bucket* copy = tbl->table[key];
+        
+                while(!insert || !found) {
+                       if(strcmp(copy->link, link) == 0) {
+                               found = 1;
+                       }
+                       else if(copy->next == NULL) {
+                               bucket* new_b = malloc(sizeof(bucket));
+                               new_b->next = NULL;
+                               new_b->link = link;
+                               copy->next = new_b;
+                               insert = 1;
+                        }
+                        else {
+                               copy = copy->next;
+                        }
+                        printf("inserting\n");
+                }
         }
         return found;
 }
