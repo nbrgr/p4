@@ -371,6 +371,8 @@ int crawl(char *start_url,
     printf("start crawl\n");
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
+    till_finished = malloc(sizeof(pthread_cond_t));
+    till_fin_lock = malloc(sizeof(pthread_mutex_t));
     pthread_cond_init(till_finished, NULL);
     pthread_mutex_init(till_fin_lock, NULL);
     parse_queue = malloc(sizeof(u_queue));
