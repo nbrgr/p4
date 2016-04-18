@@ -351,15 +351,16 @@ int crawl(char *start_url,
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
     parse_queue = malloc(sizeof(u_queue));
-    printf("parse_queue\n");
     download_queue = (b_queue*)malloc(sizeof(b_queue));
-    printf("download_queue\n");
     links_visited = malloc(sizeof(hashtable));
 
     printf("done init\n");
     u_queue_init(parse_queue);
+    printf("u_init\n");
     b_queue_init(download_queue, queue_size);
+    printf("b_init\n");
     b_enqueue(download_queue, start_url);
+    printf("en\n");
     from_link = start_url;
     printf("link\n");
     hash_init(links_visited, queue_size);
