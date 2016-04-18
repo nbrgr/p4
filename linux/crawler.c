@@ -326,7 +326,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         }
         char* content = b_dequeue(download_queue);
         from_link = content;
-        printf(link to fetch: %s\n", content);
+        printf("link to fetch: %s\n", content);
         content = _fetch_fn(content);
         u_enqueue(parse_queue, content);
 
