@@ -107,9 +107,9 @@ void u_queue_init(u_queue* initqueue)
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
-	pthread_mutex_init(&initqueue->lock, NULL);
-	pthread_cond_init(&initqueue->full, NULL);
-	pthread_cond_init(&initqueue->empty, NULL);
+	pthread_mutex_init(initqueue->lock, NULL);
+	pthread_cond_init(initqueue->full, NULL);
+	pthread_cond_init(initqueue->empty, NULL);
 }
 
 /*
@@ -124,9 +124,9 @@ void b_queue_init(b_queue* queue, int queue_size)
 	queue->size = 0;
 	queue->max = queue_size;
 	queue->array = malloc(sizeof(char*) * queue_size);
-	pthread_mutex_init(&queue->lock, NULL);
-	pthread_cond_init(&queue->full, NULL);
-	pthread_cond_init(&queue->empty, NULL);
+	pthread_mutex_init(queue->lock, NULL);
+	pthread_cond_init(queue->full, NULL);
+	pthread_cond_init(queue->empty, NULL);
 }
 
 void hash_init(hashtable* tbl, int size) {
