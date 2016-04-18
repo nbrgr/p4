@@ -166,24 +166,18 @@ unsigned long hash(char *str)
 }
 
 int hash_find_insert(hashtable *tbl, char* link) {
-	printf("start hash_insert\n");
+	
         unsigned long key = hash(link) % (tbl->max);
-        printf("key: %li\n", key);
         int found = 0;
         int insert = 0;
         
         if(tbl->table[key] == NULL) {
-        	printf("start NULL\n");
         	tbl->table[key] = malloc(sizeof(bucket));
         	(tbl->table[key])->next = NULL;
-        	printf("next\n");
         	(tbl->table[key])->link = link;
-        	printf("done NULL\n");
         }
         else {
-        	printf("start else\n");
         	bucket* copy = tbl->table[key];
-        
                 while(!insert || !found) {
                        if(strcmp(copy->link, link) == 0) {
                                found = 1;
@@ -198,7 +192,6 @@ int hash_find_insert(hashtable *tbl, char* link) {
                         else {
                                copy = copy->next;
                         }
-                        printf("inserting\n");
                 }
         }
         return found;
@@ -343,7 +336,6 @@ void downloader(char* (*_fetch_fn)(char *url))
 void parser(void (*_edge_fn)(char *from, char *to))
 {
     while(!finished) {
-    	printf("start parser\n");
         pthread_mutex_lock(parse_queue->lock);
         while(u_isempty(parse_queue) || b_isfull(download_queue)) {
     	    pthread_cond_wait(parse_queue->full, parse_queue->lock);
@@ -357,7 +349,6 @@ void parser(void (*_edge_fn)(char *from, char *to))
 
         pthread_cond_signal(parse_queue->full);
         pthread_mutex_unlock(parse_queue->lock);
-        printf("end parser\n");
     }
 }
 
@@ -368,27 +359,18 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void* (*_edge_fn)(char *from, char *to))
 {
-    printf("Starting crawl\n");
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
     parse_queue = malloc(sizeof(u_queue));
     download_queue = (b_queue*)malloc(sizeof(b_queue));
     links_visited = malloc(sizeof(hashtable));
 
-    printf("done init\n");
     u_queue_init(parse_queue);
-    printf("u_init\n");
     b_queue_init(download_queue, queue_size);
-    printf("b_init\n");
     b_enqueue(download_queue, start_url);
-    printf("en\n");
     from_link = start_url;
-    printf("link\n");
     hash_init(links_visited, queue_size);
-    printf("hash_init\n");
     hash_find_insert(links_visited, start_url);
-    
-    printf("Done initializing\n");
 
     int i = 0;
     for(; i < download_workers; i++) {
