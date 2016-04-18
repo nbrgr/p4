@@ -385,12 +385,12 @@ int crawl(char *start_url,
     for(i = 0; i < parse_workers; i++) {
     	pthread_create(&parsers[i], NULL, (void*)parser, (void*)_edge_fn);
     }
-    /*for(i = 0; i < download_workers; i++) {
+    for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
-    }*/
+    }
 
     printf("end crawl\n");
     return 0;
