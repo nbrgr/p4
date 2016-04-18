@@ -183,7 +183,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
                        if(strcmp(copy->link, link) == 0) {
                                found = 1;
                        }
-                       else if(copy.next == NULL) {
+                       else if(copy->next == NULL) {
                                bucket* new_b = malloc(sizeof(bucket));
                                new_b->next = NULL;
                                new_b->link = link;
