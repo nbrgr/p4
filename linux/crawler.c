@@ -173,10 +173,14 @@ int hash_find_insert(hashtable *tbl, char* link) {
         int insert = 0;
         
         if(tbl->table[key] == NULL) {
+        	printf("start NULL\n");
         	(tbl->table[key])->next = NULL;
+        	printf("next\n");
         	(tbl->table[key])->link = link;
+        	printf("done NULL\n");
         }
         else {
+        	printf("start else\n");
         	bucket* copy = tbl->table[key];
         
                 while(!insert || !found) {
