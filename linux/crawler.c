@@ -293,6 +293,7 @@ volatile int finished = 0;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
+    printf("parse_page\n");
     char* search = "link:";
     char* save;
     char* found;
@@ -308,14 +309,15 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     	}
     	token = strtok_r(NULL, search, &save);
     }
+    printf("end parse_page\n");
 }
 
 void downloader(char* (*_fetch_fn)(char *url))
 {
     while(!finished)
     {
-    	
         pthread_mutex_lock(download_queue->lock);
+        printf("start downloader\n");
         while(b_isempty(download_queue)) {
         	pthread_cond_wait(download_queue->full, download_queue->lock);
         }
@@ -329,6 +331,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         }
 
         pthread_cond_signal(download_queue->empty);
+        printf("end downloader\n");
         pthread_mutex_unlock(download_queue->lock);
     }
 }
@@ -337,6 +340,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
 {
     while(!finished) {
         pthread_mutex_lock(parse_queue->lock);
+        printf("start parser\n");
         while(u_isempty(parse_queue) || b_isfull(download_queue)) {
     	    pthread_cond_wait(parse_queue->full, parse_queue->lock);
         }
@@ -348,6 +352,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
         }
 
         pthread_cond_signal(parse_queue->full);
+        printf("end parser\n");
         pthread_mutex_unlock(parse_queue->lock);
     }
 }
@@ -359,6 +364,7 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void* (*_edge_fn)(char *from, char *to))
 {
+    printf("start crawl\n");
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
     parse_queue = malloc(sizeof(u_queue));
@@ -386,5 +392,6 @@ int crawl(char *start_url,
     	pthread_join(parsers[i], NULL);
     }*/
 
+    printf("end crawl\n");
     return 0;
 }
