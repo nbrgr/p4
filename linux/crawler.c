@@ -168,13 +168,13 @@ unsigned long hash(char *str)
 int hash_find_insert(hashtable *tbl, char* link) {
 	printf("start hash_insert\n");
         unsigned long key = hash(link) % (tbl->max);
-        printf("key: %s\n, key");
+        printf("key: %s\n", key);
         int found = 0;
         int insert = 0;
         
         if(tbl->table[key] == NULL) {
-        	tbl->table[key]->next = NULL;
-        	tbl->table[key]->link = link;
+        	(tbl->table[key])->next = NULL;
+        	(tbl->table[key])->link = link;
         }
         else {
         	bucket* copy = tbl->table[key];
