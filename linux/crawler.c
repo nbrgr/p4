@@ -335,6 +335,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		if(!hash_result) {
     			work_count++;
     		        b_enqueue(download_queue, found);
+    		        printf("from: %s, to: %s\n", from_link, from);
     		        _edge_fn(from_link, found);
     		}
     	}
@@ -447,12 +448,12 @@ int crawl(char *start_url,
     	pthread_join(parsers[i], NULL);
     }
     
-    if(!finished) {
+    /*if(!finished) {
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_equal, lock);
     	pthread_cond_signal(not_equal);
     	pthread_mutex_unlock(lock);
-    }
+    }*/
 
     printf("end crawl\n");
     
