@@ -447,12 +447,12 @@ int crawl(char *start_url,
     	pthread_join(parsers[i], NULL);
     }
     
-    /*if(!finished) {
+    if(!finished) {
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_equal, lock);
     	pthread_cond_signal(not_equal);
     	pthread_mutex_unlock(lock);
-    }*/
+    }
 
     printf("end crawl\n");
     
