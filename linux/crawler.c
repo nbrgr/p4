@@ -394,6 +394,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
 
         pthread_cond_signal(parse_queue->empty);
         pthread_cond_signal(download_queue->full);
+        pthread_cond_signal(not_equal);
         printf("end parser\n");
         pthread_mutex_unlock(lock);
     }
@@ -437,7 +438,6 @@ int crawl(char *start_url,
     }
     
     while(!finished) {
-    	pthread_cond_signal(not_equal);
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_equal, lock);
     	pthread_mutex_unlock(lock);
