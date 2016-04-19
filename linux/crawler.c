@@ -309,8 +309,11 @@ b_queue* download_queue;
 hashtable* links_visited;
 char* from_link = NULL;
 volatile int finished = 0;
+int work_count = 0;
+int work_completed = 0;
 
 pthread_mutex_t* lock;
+pthread_cond_t* switch;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
@@ -330,6 +333,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		hash_result = hash_find_insert(links_visited, found);
     		pthread_mutex_unlock(links_visited->lock);
     		if(!hash_result) {
+    			work_count++;
     		        b_enqueue(download_queue, found);
     		        _edge_fn(from_link, found);
     		}
@@ -341,7 +345,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 
 void downloader(char* (*_fetch_fn)(char *url))
 {
-    while(!finished)
+    while(work_count != work_completed)
     {
         pthread_mutex_lock(lock);
         printf("start downloader\n");
@@ -349,6 +353,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
         char* content = b_dequeue(download_queue);
+        work_completed++;
         from_link = content;
         printf("link to fetch: %s\n", content);
         content = _fetch_fn(content);
@@ -367,7 +372,7 @@ void downloader(char* (*_fetch_fn)(char *url))
 
 void parser(void (*_edge_fn)(char *from, char *to))
 {
-    while(!finished) {
+    while(work_count != work_completed) {
         pthread_mutex_lock(lock);
         printf("start parser\n");
         while(u_isempty(parse_queue)) {
@@ -411,6 +416,7 @@ int crawl(char *start_url,
     b_queue_init(download_queue, queue_size);
     from_link = start_url;
     b_enqueue(download_queue, start_url);
+    work_count++;
     printf("page: %s\n", start_url);
     printf("first link added\n");
     hash_init(links_visited, queue_size);
