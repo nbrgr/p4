@@ -160,6 +160,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
         	(tbl->table[key])->next = NULL;
         	(tbl->table[key])->link = malloc(sizeof(char) * (int)strlen(link));
         	(tbl->table[key])->link = strcpy((tbl->table[key])->link, link);
+        	printf("bucket: %s\n", (tbl->table[key])->link);
         }
         else {
         	bucket* copy = tbl->table[key];
@@ -171,6 +172,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
                                bucket* new_b = malloc(sizeof(bucket));
                                new_b->next = NULL;
                                new_b->link = link;
+                               printf("bucket: %s\n", new_b->link);
                                copy->next = new_b;
                                insert = 1;
                         }
