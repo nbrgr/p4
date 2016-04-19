@@ -370,7 +370,9 @@ int crawl(char *start_url,
 
     u_queue_init(parse_queue);
     b_queue_init(download_queue, queue_size);
-    b_enqueue(download_queue, start_url);
+    start_url = fetch(start_url);
+    if(start_url == NULL) { return -1; }
+    u_enqueue(parse_queue, start_url);
     printf("first link added\n");
     from_link = start_url;
     hash_init(links_visited, queue_size);
