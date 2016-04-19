@@ -435,6 +435,13 @@ int crawl(char *start_url,
     for(i = 0; i < parse_workers; i++) {
     	pthread_create(&parsers[i], NULL, (void*)parser, (void*)_edge_fn);
     }
+    
+    while(!finished) {
+    	pthread_cond_sig(not_equal, lock);
+    	pthread_mutex_lock(lock);
+    	pthread_cond_wait(not_equal, lock);
+    	pthread_mutex_unlock(lock);
+    }
     /*for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
