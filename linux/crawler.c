@@ -151,13 +151,15 @@ int hash_find_insert(hashtable *tbl, char* link) {
 	
 	printf("start insert\n");
         unsigned long key = hash(link) % (tbl->max);
+        printf("key: %li\n", key);
         int found = 0;
         int insert = 0;
         
         if(tbl->table[key] == NULL) {
         	tbl->table[key] = malloc(sizeof(bucket));
         	(tbl->table[key])->next = NULL;
-        	(tbl->table[key])->link = link;
+        	(tbl->table[key])->link = malloc(sizeof(char) * (int)strlen(link));
+        	(tbl->table[key])->link = strcpy((tbl->table[key])->link, link);
         }
         else {
         	bucket* copy = tbl->table[key];
@@ -301,6 +303,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* token = strtok_r(page, search, &save);
     
     while(token != NULL) {
+    	printf("token: %s\n", token);
     	if(strncmp(token, search, 5) == 0) {
     		found = strstr(token, search);
     		printf("found link: %s\n", found);
