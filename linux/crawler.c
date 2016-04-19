@@ -192,21 +192,19 @@ void u_enqueue(struct u_queue* queue, char* url)
 {
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
+    newnode->content = malloc(sizeof(char) * (int)strlen(url));
+    newnode->next = malloc(sizeof(u_queue_node));
     if (newnode == NULL) {
     	fprintf(stderr, "Malloc failed\n");
     	exit(1);
     }
     queue->size += 1;
     newnode->content = url;
-    /*if(queue->size == 1) {
-    	newnode->next = NULL;
+    if(queue->size == 1) {
     	queue->front = newnode;
-    	
     }
-    else {
-    	newnode->next = queue->back;
-    }
-    queue->back = newnode;*/
+    newnode->next = queue->back;
+    queue->back = newnode;
 }
 
 /*
