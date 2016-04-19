@@ -200,6 +200,9 @@ void u_enqueue(struct u_queue* queue, char* url)
     newnode->next = queue->back;
     queue->back = newnode;
     queue->size += 1;
+    if(queue->size == 1) {
+    	queue->front = newnode;
+    }
 }
 
 /*
