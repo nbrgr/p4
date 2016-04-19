@@ -200,7 +200,7 @@ int u_enqueue(struct u_queue* queue, char* url)
     	return -1;
     }
     queue->size += 1;
-    strcpy(newnode->content, url);
+    newnode->content = strcpy(newnode->content, url);
     /*if(queue->size == 1) {
     	queue->front = newnode;
     }
