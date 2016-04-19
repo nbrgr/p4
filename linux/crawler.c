@@ -98,8 +98,6 @@ Initializes the lock and condition variables it contains.
 */
 void u_queue_init(u_queue* initqueue)
 {
-	initqueue->front = malloc(sizeof(u_queue_node));
-	initqueue->back = malloc(sizeof(u_queue_node));
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
@@ -195,14 +193,13 @@ int u_enqueue(struct u_queue* queue, char* url)
     if(queue == NULL || url == NULL) { return -1; }
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
-    newnode->content = malloc(sizeof(char) * (int)strlen(url));
     newnode->next = malloc(sizeof(u_queue_node));
     if (newnode == NULL) {
     	fprintf(stderr, "Malloc failed\n");
     	return -1;
     }
     queue->size += 1;
-    newnode->content = url;
+    strcpy(newnode->content, url);
     /*if(queue->size == 1) {
     	queue->front = newnode;
     }
