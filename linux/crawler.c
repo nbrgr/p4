@@ -367,7 +367,8 @@ void downloader(char* (*_fetch_fn)(char *url))
         	finished = 1;
         }
 
-        pthread_cond_signal(download_queue->empty);
+        pthread_cond_signal(parse_queue->empty);
+        pthread_cond_signal(download_queue->full);
         printf("end downloader\n");
         pthread_mutex_unlock(lock);
     }
@@ -393,8 +394,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
         	finished = 1;
         }
 
-        pthread_cond_signal(parse_queue->empty);
-        pthread_cond_signal(download_queue->full);
+        pthread_cond_signal(download_queue->empty);
         //pthread_cond_signal(not_equal);
         printf("end parser\n");
         pthread_mutex_unlock(lock);
@@ -443,6 +443,7 @@ int crawl(char *start_url,
     if(!finished) {
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_equal, lock);
+    	pthread_cond_signal(not_equal);
     	pthread_mutex_unlock(lock);
     }
     /*for(i = 0; i < download_workers; i++) {
