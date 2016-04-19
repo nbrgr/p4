@@ -437,7 +437,7 @@ int crawl(char *start_url,
     }
     
     while(!finished) {
-    	pthread_cond_sig(not_equal, lock);
+    	pthread_cond_signal(not_equal, lock);
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_equal, lock);
     	pthread_mutex_unlock(lock);
