@@ -50,6 +50,7 @@ struct bucket {
 struct hashtable {
     bucket** table;
     int max;
+    pthread_mutex_t* lock;
 };
 
 /*
@@ -70,6 +71,8 @@ struct u_queue {
 	u_queue_node* front;
 	u_queue_node* back;
 	int size;
+	pthread_mutex_t* lock;
+	pthread_cond_t* empty;
 } ;
 
 /*
@@ -85,6 +88,9 @@ struct b_queue {
 	int back;
 	int max;
 	int size;
+	pthread_mutex_t* lock;
+	pthread_cond_t* empty;
+	pthread_cond_t* full;
 };
 
 /*
@@ -101,6 +107,10 @@ void u_queue_init(u_queue* initqueue)
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
+	initqueue->lock = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(initqueue->lock, NULL);
+	initqueue->empty = malloc(sizeof(pthread_cond_t));
+	pthread_cond_init(initqueue->empty, NULL);
 }
 
 /*
@@ -115,11 +125,19 @@ void b_queue_init(b_queue* queue, int queue_size)
 	queue->size = 0;
 	queue->max = queue_size;
 	queue->array = malloc(sizeof(char*) * queue_size);
+	queue->lock = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(queue->lock, NULL);
+	queue->empty = malloc(sizeof(pthread_cond_t));
+	pthread_cond_init(queue->empty, NULL);
+	queue->full = malloc(sizeof(pthread_cond_t));
+	pthread_cond_init(queue->full, NULL);
 }
 
 void hash_init(hashtable* tbl, int size) {
 	tbl->max = size;
 	tbl->table = malloc(sizeof(bucket) * size);
+	tbl->lock = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(tbl->lock);
 }
 
 /*
@@ -293,8 +311,6 @@ char* from_link = NULL;
 volatile int finished = 0;
 
 pthread_mutex_t* lock;
-pthread_cond_t* sig_down;
-pthread_cond_t* sig_parse;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
@@ -303,13 +319,17 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* save;
     char* found;
     char* token = strtok_r(page, search, &save);
+    int hash_result;
     
     while(token != NULL) {
     	printf("token: %s\n", token);
     	if(strncmp(token, search, 5) == 0) {
     		found = strstr(token, search);
     		printf("found link: %s\n", found);
-    		if(!hash_find_insert(links_visited, found)) {
+    		pthread_mutex_lock(links_visted->lock);
+    		hash_result = hash_find_insert(links_visited, found);
+    		pthread_mutex_unlock(links_visited->lock);
+    		if(!hash_result) {
     		        b_enqueue(download_queue, found);
     		        _edge_fn(from_link, found);
     		}
@@ -326,7 +346,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         pthread_mutex_lock(lock);
         printf("start downloader\n");
         while(b_isempty(download_queue)) {
-        	pthread_cond_wait(sig_parse, lock);
+        	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
         char* content = b_dequeue(download_queue);
         from_link = content;
@@ -339,7 +359,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         	finished = 1;
         }
 
-        pthread_cond_signal(sig_down);
+        pthread_cond_signal(download_queue->empty);
         printf("end downloader\n");
         pthread_mutex_unlock(lock);
     }
@@ -350,8 +370,11 @@ void parser(void (*_edge_fn)(char *from, char *to))
     while(!finished) {
         pthread_mutex_lock(lock);
         printf("start parser\n");
-        while(u_isempty(parse_queue) || b_isfull(download_queue)) {
-    	    pthread_cond_wait(sig_down, lock);
+        while(u_isempty(parse_queue)) {
+        	pthread_cond_wait(parse_queue->empty, parse_queue->lock);
+        }
+        while(b_isfull(download_queue)) {
+    	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
         char* page = b_dequeue(download_queue);
         parse_page(page, _edge_fn);
@@ -360,7 +383,8 @@ void parser(void (*_edge_fn)(char *from, char *to))
         	finished = 1;
         }
 
-        pthread_cond_signal(sig_parse);
+        pthread_cond_signal(parse_queue->empty);
+        pthread_cond_signal(download_queue->full);
         printf("end parser\n");
         pthread_mutex_unlock(lock);
     }
@@ -381,11 +405,7 @@ int crawl(char *start_url,
     links_visited = malloc(sizeof(hashtable));
     
     lock = malloc(sizeof(pthread_mutex_t));
-    sig_down = malloc(sizeof(pthread_cond_t));
-    sig_parse = malloc(sizeof(pthread_cond_t));
     pthread_mutex_init(lock, NULL);
-    pthread_cond_init(sig_down, NULL);
-    pthread_cond_init(sig_parse, NULL);
 
     u_queue_init(parse_queue);
     b_queue_init(download_queue, queue_size);
