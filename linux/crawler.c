@@ -201,7 +201,7 @@ int u_enqueue(struct u_queue* queue, char* url)
     	fprintf(stderr, "Malloc failed\n");
     	return -1;
     }
-    //queue->size++;
+    queue->size++;
     newnode->content = strcpy(newnode->content, url);
     if(queue->size == 1) {
     	 queue->front = newnode;
@@ -330,6 +330,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         from_link = content;
         printf("link to fetch: %s\n", content);
         content = _fetch_fn(content);
+        printf("fetched: %s\n", content);
         u_enqueue(parse_queue, content);
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
