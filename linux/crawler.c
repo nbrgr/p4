@@ -205,7 +205,7 @@ int u_enqueue(struct u_queue* queue, char* url)
     	 queue->front = newnode;
     //}
     newnode->next = queue->back;
-    //queue->back = newnode;
+    queue->back = newnode;
     return 0;
 }
 
