@@ -440,18 +440,19 @@ int crawl(char *start_url,
     }
     printf("%i parser threads\n", i);
     
-    /*if(!finished) {
-    	pthread_mutex_lock(lock);
-    	pthread_cond_wait(not_equal, lock);
-    	pthread_cond_signal(not_equal);
-    	pthread_mutex_unlock(lock);
-    }*/
     for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
     }
+    
+    /*if(!finished) {
+    	pthread_mutex_lock(lock);
+    	pthread_cond_wait(not_equal, lock);
+    	pthread_cond_signal(not_equal);
+    	pthread_mutex_unlock(lock);
+    }*/
 
     printf("end crawl\n");
     
