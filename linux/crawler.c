@@ -193,13 +193,13 @@ int u_enqueue(struct u_queue* queue, char* url)
     if(queue == NULL || url == NULL) { return -1; }
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
-    //newnode->content = malloc(sizeof(char) * (int)strlen(url));
-    //newnode->next = malloc(sizeof(u_queue_node));
+    newnode->content = malloc(sizeof(char) * (int)strlen(url));
+    newnode->next = malloc(sizeof(u_queue_node));
     if (newnode == NULL) {
     	fprintf(stderr, "Malloc failed\n");
     	return -1;
     }
-    //queue->size++;
+    queue->size++;
     newnode->content = strcpy(newnode->content, url);
     if(queue->size == 1) {
     	 queue->front = newnode;
@@ -237,6 +237,11 @@ char* u_dequeue(struct u_queue* queue)
     char* url = queue->front->content;
     struct u_queue_node* copy = queue->front;
     queue->front = queue->front->next;
+    queue->size--;
+    if(queue->size == 0) {
+    	queue->back = NULL;
+    }
+    free(copy->next);
     free(copy);
     return url;
 }
@@ -246,6 +251,7 @@ char* b_dequeue(struct b_queue* queue)
     char* url = queue->array[queue->front];
     queue->front++;
     queue->front = queue->front % queue->max;
+    queue->size--;
     return url;
 }
 
