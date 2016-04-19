@@ -313,7 +313,7 @@ int work_count = 0;
 int work_completed = 0;
 
 pthread_mutex_t* lock;
-pthread_cond_t* switch;
+pthread_cond_t* not_equal;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
@@ -411,6 +411,8 @@ int crawl(char *start_url,
     
     lock = malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(lock, NULL);
+    not_equal = malloc(sizeof(pthread_cond_t));
+    pthread_cond_init(not_equal, NULL);
 
     u_queue_init(parse_queue);
     b_queue_init(download_queue, queue_size);
