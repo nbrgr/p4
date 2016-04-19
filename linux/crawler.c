@@ -24,7 +24,7 @@ void b_queue_init(b_queue* queue, int queue_size);
 unsigned long hash(char *str);
 void hash_init(hashtable *tbl, int size);
 int hash_find_insert(hashtable *tbl, char* link);
-void u_enqueue(u_queue* queue, char* url);
+int u_enqueue(u_queue* queue, char* url);
 void b_enqueue(b_queue* queue, char* url);
 char* u_dequeue(u_queue* queue);
 int u_isempty(u_queue* queue);
@@ -98,6 +98,8 @@ Initializes the lock and condition variables it contains.
 */
 void u_queue_init(u_queue* initqueue)
 {
+	initqueue->front = malloc(sizeof(u_queue_node));
+	initqueue->back = malloc(sizeof(u_queue_node));
 	initqueue->front = NULL;
 	initqueue->back = NULL;
 	initqueue->size = 0;
@@ -188,15 +190,14 @@ void u_enqueue: Adds a new node to the end of the queue
 struct u_queue* queue, the queue to be operated on.
 char* url, the url that will be added to the back of the queue.
 */
-void u_enqueue(struct u_queue* queue, char* url)
+int u_enqueue(struct u_queue* queue, char* url)
 {
+    if(queue == NULL || url == NULL) { return -1; }
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
-    newnode->content = malloc(sizeof(char) * (int)strlen(url));
-    newnode->next = malloc(sizeof(u_queue_node));
     if (newnode == NULL) {
     	fprintf(stderr, "Malloc failed\n");
-    	exit(1);
+    	return -1;
     }
     queue->size += 1;
     newnode->content = url;
@@ -205,6 +206,7 @@ void u_enqueue(struct u_queue* queue, char* url)
     }
     newnode->next = queue->back;
     queue->back = newnode;
+    return 0;
 }
 
 /*
