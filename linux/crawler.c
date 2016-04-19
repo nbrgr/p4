@@ -199,7 +199,7 @@ int u_enqueue(struct u_queue* queue, char* url)
     	fprintf(stderr, "Malloc failed\n");
     	return -1;
     }
-    //queue->size += 1;
+    queue->size += 1;
     newnode->content = strcpy(newnode->content, url);
     if(queue->size == 1) {
     	 queue->front = newnode;
