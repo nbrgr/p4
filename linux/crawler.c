@@ -137,7 +137,7 @@ void hash_init(hashtable* tbl, int size) {
 	tbl->max = size;
 	tbl->table = malloc(sizeof(bucket) * size);
 	tbl->lock = malloc(sizeof(pthread_mutex_t));
-	pthread_mutex_init(tbl->lock);
+	pthread_mutex_init(tbl->lock, NULL);
 }
 
 /*
@@ -326,7 +326,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     	if(strncmp(token, search, 5) == 0) {
     		found = strstr(token, search);
     		printf("found link: %s\n", found);
-    		pthread_mutex_lock(links_visted->lock);
+    		pthread_mutex_lock(links_visited->lock);
     		hash_result = hash_find_insert(links_visited, found);
     		pthread_mutex_unlock(links_visited->lock);
     		if(!hash_result) {
