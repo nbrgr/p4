@@ -433,18 +433,18 @@ int crawl(char *start_url,
     int i = 0;
     for(; i < download_workers; i++) {
     	pthread_create(&downloaders[i], NULL, (void*)downloader, (void*)_fetch_fn);
-    	printf("%i downloader threads\n", i);
     }
+    printf("%i downloader threads\n", i);
     for(i = 0; i < parse_workers; i++) {
     	pthread_create(&parsers[i], NULL, (void*)parser, (void*)_edge_fn);
-    	printf("%i parser threads\n", i);
     }
+    printf("%i parser threads\n", i);
     
-    /*while(!finished) {
+    if(!finished) {
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_equal, lock);
     	pthread_mutex_unlock(lock);
-    }*/
+    }
     /*for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
