@@ -335,6 +335,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		pthread_mutex_unlock(links_visited->lock);
     		if(!hash_result) {
     			work_count++;
+    			work_completed++;
     		        b_enqueue(download_queue, found);
     		        printf("from: %s, to: %s\n", from_link, found);
     		        pthread_mutex_lock(lock);
@@ -359,7 +360,6 @@ void downloader(char* (*_fetch_fn)(char *url))
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
         char* content = b_dequeue(download_queue);
-        work_completed++;
         from_link = content;
         printf("link to fetch: %s\n", content);
         pthread_mutex_lock(lock);
