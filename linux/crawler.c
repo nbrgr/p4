@@ -389,7 +389,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
         while(b_isfull(download_queue)) {
     	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
-        char* page = b_dequeue(download_queue);
+        char* page = u_dequeue(parse_queue);
         parse_page(page, _edge_fn);
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
