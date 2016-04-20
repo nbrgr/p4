@@ -339,7 +339,6 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		        printf("from: %s, to: %s\n", from_link, found);
     		        _edge_fn(from_link, found);
     		}
-    		free(found);
     	}
     	token = strtok_r(NULL, " \n", &save);
     }
