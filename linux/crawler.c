@@ -335,7 +335,6 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		pthread_mutex_unlock(links_visited->lock);
     		if(!hash_result) {
     			work_count++;
-    			work_completed++;
     		        b_enqueue(download_queue, found);
     		        printf("from: %s, to: %s\n", from_link, found);
     		        pthread_mutex_lock(lock);
@@ -346,6 +345,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     	token = strtok_r(NULL, " \n", &save);
     }
     printf("end parse_page\n");
+    work_completed++;
 }
 
 void downloader(char* (*_fetch_fn)(char *url))
