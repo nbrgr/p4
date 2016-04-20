@@ -337,7 +337,9 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     			work_count++;
     		        b_enqueue(download_queue, found);
     		        printf("from: %s, to: %s\n", from_link, found);
+    		        pthread_mutex_lock(lock);
     		        _edge_fn(from_link, found);
+    		        pthread_mutex_unlock(lock);
     		}
     	}
     	token = strtok_r(NULL, " \n", &save);
@@ -360,7 +362,9 @@ void downloader(char* (*_fetch_fn)(char *url))
         work_completed++;
         from_link = content;
         printf("link to fetch: %s\n", content);
+        pthread_mutex_lock(lock);
         content = _fetch_fn(content);
+        pthread_mutex_unlock(lock);
         printf("fetched: %s\n", content);
         u_enqueue(parse_queue, content);
         printf("u_enqueue page\n");
