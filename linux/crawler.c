@@ -313,7 +313,7 @@ int work_count = 0;
 int work_completed = 0;
 
 pthread_mutex_t* lock;
-pthread_cond_t* not_equal;
+pthread_cond_t* not_done;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
@@ -367,7 +367,7 @@ void downloader(char* (*_fetch_fn)(char *url))
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
         	finished = 1;
-        	pthread_cond_signal(not_equal);
+        	pthread_cond_signal(not_done);
         }
 
         pthread_cond_signal(parse_queue->empty);
@@ -397,11 +397,11 @@ void parser(void (*_edge_fn)(char *from, char *to))
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
         	finished = 1;
-        	pthread_cond_signal(not_equal);
+        	pthread_cond_signal(not_done);
         }
 
         pthread_cond_signal(download_queue->empty);
-        //pthread_cond_signal(not_equal);
+        //pthread_cond_signal(not_done);
         printf("end parser\n");
         pthread_mutex_unlock(download_queue->lock);
         pthread_mutex_unlock(parse_queue->lock);
@@ -424,8 +424,8 @@ int crawl(char *start_url,
     
     lock = malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(lock, NULL);
-    not_equal = malloc(sizeof(pthread_cond_t));
-    pthread_cond_init(not_equal, NULL);
+    not_done = malloc(sizeof(pthread_cond_t));
+    pthread_cond_init(not_done, NULL);
 
     u_queue_init(parse_queue);
     b_queue_init(download_queue, queue_size);
@@ -447,17 +447,17 @@ int crawl(char *start_url,
     }
     printf("%i parser threads\n", i);
     
+    if(!finished) {
+    	pthread_mutex_lock(lock);
+    	pthread_cond_wait(not_done, lock);
+    	pthread_mutex_unlock(lock);
+    }
+    
     for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
-    }
-    
-    if(!finished) {
-    	pthread_mutex_lock(lock);
-    	pthread_cond_wait(not_equal, lock);
-    	pthread_mutex_unlock(lock);
     }
 
     printf("end crawl\n");
