@@ -321,7 +321,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* search = "link:";
     char* save;
     char* found;
-    char* token = strtok_r(page, " ", "\n", &save);
+    char* token = strtok_r(page, " \n", &save);
     int hash_result;
     
     while(token != NULL) {
