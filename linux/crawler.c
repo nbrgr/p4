@@ -339,7 +339,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		        _edge_fn(from_link, found);
     		}
     	}
-    	token = strtok_r(NULL, search, &save);
+    	token = strtok_r(NULL, " \n", &save);
     }
     printf("end parse_page\n");
 }
