@@ -327,6 +327,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     while(token != NULL) {
     	printf("token: %s\n", token);
     	if(strncmp(token, search, 5) == 0) {
+    		found = malloc(sizeof(char) * (int)strlen(token - 5));
     		found = strcpy(found, token + 5);
     		printf("found link: %s\n", found);
     		pthread_mutex_lock(links_visited->lock);
@@ -339,6 +340,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		        _edge_fn(from_link, found);
     		}
     	}
+    	free(found);
     	token = strtok_r(NULL, " \n", &save);
     }
     printf("end parse_page\n");
