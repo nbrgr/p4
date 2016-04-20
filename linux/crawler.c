@@ -347,7 +347,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 void downloader(char* (*_fetch_fn)(char *url))
 {
     printf("count: %i, complete: %i\n", work_count, work_completed);
-    while( !(b_isempty(download_queue) && u_isempty(parse_queue)) ) {//work_count != work_completed)
+    while( !(b_isempty(download_queue) && u_isempty(parse_queue)) ) //work_count != work_completed)
     {
     	printf("count: %i, complete: %i\n", work_count, work_completed);
         pthread_mutex_lock(lock);
