@@ -367,6 +367,7 @@ void downloader(char* (*_fetch_fn)(char *url))
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
         	finished = 1;
+        	pthread_cond_signal(not_equal);
         }
 
         pthread_cond_signal(parse_queue->empty);
@@ -396,6 +397,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
         	finished = 1;
+        	pthread_cond_signal(not_equal);
         }
 
         pthread_cond_signal(download_queue->empty);
@@ -452,12 +454,11 @@ int crawl(char *start_url,
     	pthread_join(parsers[i], NULL);
     }
     
-    /*if(!finished) {
+    if(!finished) {
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_equal, lock);
-    	pthread_cond_signal(not_equal);
     	pthread_mutex_unlock(lock);
-    }*/
+    }
 
     printf("end crawl\n");
     
