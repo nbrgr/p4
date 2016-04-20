@@ -182,7 +182,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
         }
         else {
         	bucket* copy = tbl->table[key];
-                while(!insert || !found) {
+                while(!insert && !found) {
                        if(strcmp(copy->link, link) == 0) {
                                found = 1;
                        }
