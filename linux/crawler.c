@@ -351,7 +351,7 @@ void downloader(char* (*_fetch_fn)(char *url))
     while(work_count != work_completed)
     {
     	printf("count: %i, complete: %i\n", work_count, work_completed);
-        pthread_mutex_lock(lock);
+        pthread_mutex_lock(download_queue->lock);
         printf("start downloader\n");
         while(b_isempty(download_queue)) {
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
@@ -372,7 +372,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         pthread_cond_signal(parse_queue->empty);
         pthread_cond_signal(download_queue->full);
         printf("end downloader\n");
-        pthread_mutex_unlock(lock);
+        pthread_mutex_unlock(download_queue->lock);
     }
 }
 
@@ -382,7 +382,8 @@ void parser(void (*_edge_fn)(char *from, char *to))
     printf("count: %i, complete: %i\n", work_count, work_completed);
     while(work_count != work_completed) {
     	printf("count: %i, complete: %i\n", work_count, work_completed);
-        pthread_mutex_lock(lock);
+        pthread_mutex_lock(download_queue->lock);
+        pthread_mutex_lock(parse_queue->lock);
         printf("start parser\n");
         while(u_isempty(parse_queue)) {
         	pthread_cond_wait(parse_queue->empty, parse_queue->lock);
@@ -400,7 +401,8 @@ void parser(void (*_edge_fn)(char *from, char *to))
         pthread_cond_signal(download_queue->empty);
         //pthread_cond_signal(not_equal);
         printf("end parser\n");
-        pthread_mutex_unlock(lock);
+        pthread_mutex_unlock(download_queue->lock);
+        pthread_mutex_unlock(parse_queue->lock);
     }
 }
 
