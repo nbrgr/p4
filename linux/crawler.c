@@ -327,7 +327,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     while(token != NULL) {
     	printf("token: %s\n", token);
     	if(strncmp(token, search, 5) == 0) {
-    		found = found + (5 * sizeof(char));
+    		found = strtok_r(NULL, ":", &save);
     		printf("found link: %s\n", found);
     		pthread_mutex_lock(links_visited->lock);
     		hash_result = hash_find_insert(links_visited, found);
