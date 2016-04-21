@@ -182,6 +182,9 @@ int hash_find_insert(hashtable *tbl, char* link) {
         	(tbl->table[key])->next = NULL;
         	(tbl->table[key])->link = malloc(sizeof(char) * (int)strlen(link));
         	(tbl->table[key])->link = strcpy((tbl->table[key])->link, link);
+        	if( ((tbl->table[key])->link + (int)strlen(link) - 1) != '\0') {
+        		((tbl->table[key])->link + (int)strlen(link) - 1) = '\0';
+        	} 
         	printf("bucket: %s\n", (tbl->table[key])->link);
         }
         else {
