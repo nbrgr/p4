@@ -360,7 +360,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     				ever_interrupted = 1;
     				interrupted_u_enqueue = 1;
     				pthread_cond_signal(parse_queue->empty);
-    				//pthread_cond_signal(download)
+    				pthread_cond_signal(download_queue->empty);
     				pthread_cond_wait(download_queue->full, download_queue->lock);
     			}
     			if(!interrupted_u_enqueue) {
