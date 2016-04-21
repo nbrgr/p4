@@ -258,6 +258,9 @@ char*, the content from the removed node (the url)
 char* u_dequeue(struct u_queue* queue)
 {
     printf("start u_dequeue\n");
+    if(queue->front == NULL) {
+    	printf("SHIIIIT\n");
+    }
     char* url = queue->front->content;
     printf("u_dequeue: url\n");
     struct u_queue_node* copy = queue->front;
