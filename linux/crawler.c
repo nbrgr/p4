@@ -342,6 +342,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* copy;
     
     do {
+    	printf("gonna copy\n");
     	copy = strcpy(copy, page + offset);
     	printf("copy: %s\n", copy);
     	char* token = strtok_r(copy, " \n", &save);
