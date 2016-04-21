@@ -323,8 +323,6 @@ char* from_link = NULL;
 volatile int finished = 0;
 int work_count = 0;
 int work_completed = 0;
-int interrupted_u_enqueue = 0;
-int interrupted_offset = 0;
 
 pthread_mutex_t* lock;
 pthread_cond_t* not_done;
@@ -336,11 +334,13 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* save;
     char* found;
     int hash_result;
+    int interrupted_u_enqueue = 0;
+    int offset = 0;
     
     do {
     	char* token = strtok_r(page + offset, " \n", &save);
     	interrupted_u_enqueue = 0;
-    	while(token != NULL && !interrupted_u_queue) {
+    	while(token != NULL && !interrupted_u_enqueue) {
     		printf("token: %s\n", token);
     		if(strncmp(token, search, 5) == 0) {
     			while(download_queue->size >= download_queue->max) {
