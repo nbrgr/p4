@@ -397,7 +397,7 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     		if(!interrupted_u_enqueue) {
     			token = strtok_r(NULL, " \n", &save);
     			if(token != NULL) {
-    				offset += (int)strlen(token) + 1;
+    				offset += (int)strlen(token);
     			}
     		}
     		
