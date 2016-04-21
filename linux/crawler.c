@@ -517,9 +517,9 @@ int crawl(char *start_url,
     	printf("MAAAAAAIIIIIIIIIIINNNNNNN\n");
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_done, lock);
-    	pthread_cond_signal(parse_queue->empty);
+    	//pthread_cond_signal(parse_queue->empty);
     	//pthread_cond_signal(download_queue->empty);
-    	pthread_cond_signal(download_queue->full);
+    	//pthread_cond_signal(download_queue->full);
     	pthread_mutex_unlock(lock);
     }
     
