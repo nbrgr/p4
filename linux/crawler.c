@@ -264,7 +264,7 @@ char* u_dequeue(struct u_queue* queue)
     if(queue->size == 0) {
     	queue->back = NULL;
     }
-    free(copy->next);
+    //free(copy->next);
     free(copy);
     return url;
 }
@@ -393,17 +393,19 @@ void parser(void (*_edge_fn)(char *from, char *to))
     printf("count: %i, complete: %i\n", work_count, work_completed);
     while(work_count != work_completed) {
     	printf("count: %i, complete: %i\n", work_count, work_completed);
+    	//u_queue_node* copy = parse_queue->head;
+    	
         pthread_mutex_lock(download_queue->lock);
         pthread_mutex_lock(parse_queue->lock);
         printf("start parser\n");
         while(u_isempty(parse_queue)) {
         	pthread_cond_wait(parse_queue->empty, parse_queue->lock);
         }
-        char* page = u_dequeue(parse_queue);
         while(b_isfull(download_queue)) {
     	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
         printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
+        char* page = u_dequeue(parse_queue);
         printf("u_dequeue done\n");
         parse_page(page, _edge_fn);
 
@@ -460,7 +462,7 @@ int crawl(char *start_url,
     printf("%i parser threads\n", i);
     
     if(!finished) {
-    	printf("main\n");
+    	printf("MAAAAAAIIIIIIIIIIINNNNNNN\n");
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_done, lock);
     	pthread_cond_signal(parse_queue->empty);
