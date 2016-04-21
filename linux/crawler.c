@@ -360,6 +360,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         while(b_isempty(download_queue)) {
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
+        printf("Testing seg: download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         char* content = b_dequeue(download_queue);
         from_link = content;
         printf("link to fetch: %s\n", content);
