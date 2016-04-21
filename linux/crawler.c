@@ -502,11 +502,11 @@ int crawl(char *start_url,
     hash_find_insert(links_visited, start_url);
 
     int i = 0;
-    for(; i < download_workers; i++) {
+    for(; i < 1; i++) {
     	pthread_create(&downloaders[i], NULL, (void*)downloader, (void*)_fetch_fn);
     }
     printf("%i downloader threads\n", i);
-    for(i = 0; i < parse_workers; i++) {
+    for(i = 0; i < 1; i++) {
     	pthread_create(&parsers[i], NULL, (void*)parser, (void*)_edge_fn);
     }
     printf("%i parser threads\n", i);
@@ -530,6 +530,6 @@ int crawl(char *start_url,
 
     printf("end crawl\n");
     
-    pthread_exit(0);
-    //exit(0);
+    //pthread_exit(0);
+    exit(0);
 }
