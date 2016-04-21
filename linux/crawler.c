@@ -223,8 +223,8 @@ int u_enqueue(struct u_queue* queue, char* url, char* page)
     if(queue == NULL || url == NULL) { return -1; }
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
-    newnode->content = malloc(sizeof(char) * (int)strlen(page));
-    newnode->from_link = malloc(sizeof(char) * (int)strlen(url));
+    newnode->content = malloc(sizeof(char) * (int)strlen(page) + 1);
+    newnode->from_link = malloc(sizeof(char) * (int)strlen(url) + 1);
     newnode->next = malloc(sizeof(u_queue_node));
     newnode->prev = malloc(sizeof(u_queue_node));
     if (newnode == NULL) {
@@ -233,13 +233,7 @@ int u_enqueue(struct u_queue* queue, char* url, char* page)
     }
     queue->size++;
     newnode->content = strcpy(newnode->content, page);
-    if( *(newnode->content + (int)strlen(newnode->content) - 1) != '\0') {
-    	*(newnode->content + (int)strlen(newnode->content) - 1) = '\0';
-    }
     newnode->from_link = strcpy(newnode->from_link, url);
-    if( *(newnode->from_link + (int)strlen(newnode->from_link) - 1) != '\0') {
-    	*(newnode->from_link + (int)strlen(newnode->from_link) - 1) = '\0';
-    }
     if(queue->size == 1 || (queue->size == 2 && interrupted_u_enqueue) ) {
     	 printf("DEAD END SHIIIIT\n");
     	 newnode->next = NULL;
@@ -351,12 +345,9 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     char* copy;
     
     do {
-    	copy = malloc(sizeof(char) * ( (int)strlen(node->content) - offset) );
+    	copy = malloc(sizeof(char) * ( (int)strlen(node->content) - offset + 1) );
     	printf("gonna copy\n");
     	copy = strcpy(copy, node->content + offset);
-    	/*if( *(copy + (int)strlen(copy) - 1) != '\0') {
-    		*(found + (int)strlen(copy) - 1) = '\0';
-    	}*/
     	printf("copy: %s\n", copy);
     	char* token = strtok_r(copy, " \n", &save);
     	printf("token interrupted: %s\n", token);
@@ -378,9 +369,6 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     			if(!interrupted_u_enqueue) {
     				found = malloc(sizeof(char) * ((int)strlen(token) - 4) );
     				found = strcpy(found, token + 5);
-    				/*if( *(found + (int)strlen(found)) != '\0') {
-    					*(found + (int)strlen(found)) = '\0';
-    				}*/
 	 			printf("found link: %s\n", found);
     				pthread_mutex_lock(links_visited->lock);
     				hash_result = hash_find_insert(links_visited, found);
@@ -536,9 +524,9 @@ int crawl(char *start_url,
     	printf("MAAAAAAIIIIIIIIIIINNNNNNN\n");
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_done, lock);
-    	pthread_cond_signal(parse_queue->empty);
+    	//pthread_cond_signal(parse_queue->empty);
     	//pthread_cond_signal(download_queue->empty);
-    	pthread_cond_signal(download_queue->full);
+    	//pthread_cond_signal(download_queue->full);
     	pthread_mutex_unlock(lock);
     }
     
