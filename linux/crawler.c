@@ -28,7 +28,7 @@ void hash_init(hashtable *tbl, int size);
 int hash_find_insert(hashtable *tbl, char* link);
 int u_enqueue(u_queue* queue, char* url);
 void b_enqueue(b_queue* queue, char* url);
-char* u_dequeue(u_queue* queue);
+u_queue_node* u_dequeue(u_queue* queue);
 int u_isempty(u_queue* queue);
 int b_isfull(b_queue* queue);
 
@@ -41,6 +41,7 @@ A string that contains the content of that node and a pointer to the next node i
 */
 struct u_queue_node {
     char* content;
+    char* from_link;
     u_queue_node* next;
     u_queue_node* prev;
 };
@@ -219,6 +220,7 @@ int u_enqueue(struct u_queue* queue, char* url)
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
     newnode->content = malloc(sizeof(char) * (int)strlen(url));
+    newnode->from_link = malloc(sizeof(char) * (int)strlen(url));
     newnode->next = malloc(sizeof(u_queue_node));
     newnode->prev = malloc(sizeof(u_queue_node));
     if (newnode == NULL) {
@@ -265,15 +267,15 @@ char* u_dequeue: Removes the front node of the queue
 @params:
 struct u_queue* queue, the queue to be operated on
 @return:
-char*, the content from the removed node (the url)
+u_queue_node*, the removed node
 */
-char* u_dequeue(struct u_queue* queue)
+u_queue_node* u_dequeue(struct u_queue* queue)
 {
     //printf("start u_dequeue\n");
     if(queue->front == NULL) {
     	//printf("SHIIIIT\n");
     }
-    char* url = queue->front->content;
+    //char* url = queue->front->content;
     //printf("u_dequeue: url\n");
     struct u_queue_node* copy = queue->front;
     //printf("u_dequeue: copy\n");
@@ -289,9 +291,9 @@ char* u_dequeue(struct u_queue* queue)
     	queue->back = NULL;
     }
     //printf("u_dequeue: check empty\n");
-    free(copy);
+    //free(copy);
     //printf("u_dequeue: free\n");
-    return url;
+    return copy;
 }
 
 char* b_dequeue(struct b_queue* queue)
@@ -340,7 +342,7 @@ int work_completed = 0;
 pthread_mutex_t* lock;
 pthread_cond_t* not_done;
 
-void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
+void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
 {
     //printf("parse_page\n");
     char* search = "link:";
@@ -353,9 +355,9 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* copy;
     
     do {
-    	copy = malloc(sizeof(char) * ( (int)strlen(page) - offset) );
+    	copy = malloc(sizeof(char) * ( (int)strlen(node->content) - offset) );
     	//printf("gonna copy\n");
-    	copy = strcpy(copy, page + offset);
+    	copy = strcpy(copy, node->content + offset);
     	//printf("copy: %s\n", copy);
     	char* token = strtok_r(copy, " \n", &save);
     	//printf("token interrupted: %s\n", token);
@@ -387,7 +389,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     				        b_enqueue(download_queue, found);
     				        //printf("from: %s, to: %s\n", from_link, found);
 	   		        	pthread_mutex_lock(lock);
-    				        _edge_fn(from_link, found);
+    				        _edge_fn(node->from_link, found);
     				        pthread_mutex_unlock(lock);
     				}
     			}
@@ -472,10 +474,10 @@ void parser(void (*_edge_fn)(char *from, char *to))
     	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
         //printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
-        char* page = u_dequeue(parse_queue);
+        u_queue_node* node = u_dequeue(parse_queue);
        // printf("page: %s\n", page);
        // printf("u_dequeue done\n");
-        parse_page(page, _edge_fn);
+        parse_page(node, _edge_fn);
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
         	pthread_cond_signal(not_done);
