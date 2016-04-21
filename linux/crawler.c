@@ -540,12 +540,12 @@ int crawl(char *start_url,
     	pthread_mutex_unlock(lock);
     }
     
-    for(i = 0; i < download_workers; i++) {
+    /*for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
-    }
+    }*/
 
     printf("end crawl\n");
     
