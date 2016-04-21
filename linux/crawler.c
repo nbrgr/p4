@@ -345,12 +345,12 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		printf("token: %s\n", token);
     		if(strncmp(token, search, 5) == 0) {
     			while(download_queue->size >= download_queue->max) {
-    				pthread_cond_signal(parse_queue->empty);
-    				pthread_cond_wait(download_queue->full, download_queue->lock);
-    				interrupted_u_enqueue = 1;
     				if(prev >= parse_queue->size) {
     					parse_queue->size++;
     				}
+    				interrupted_u_enqueue = 1;
+    				pthread_cond_signal(parse_queue->empty);
+    				pthread_cond_wait(download_queue->full, download_queue->lock);
     			}
     			if(!interrupted_u_enqueue) {
     				found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
