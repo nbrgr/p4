@@ -377,9 +377,9 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     					work_count++;
     				        b_enqueue(download_queue, found);
     				        printf("from: %s, to: %s\n", node->from_link, found);
-	   		        	pthread_mutex_lock(lock);
+	   		        	//pthread_mutex_lock(lock);
     				        _edge_fn(node->from_link, found);
-    				        pthread_mutex_unlock(lock);
+    				        //pthread_mutex_unlock(lock);
     				}
     			}
     		
@@ -423,13 +423,9 @@ void downloader(char* (*_fetch_fn)(char *url))
         printf("Testing seg: download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         char* url = b_dequeue(download_queue);
         printf("link to fetch: %s\n", url);
-        pthread_mutex_lock(lock);
-        if (*(url + (int)strlen(url)) != '\0') {
-        	*(url + (int)strlen(url)) = '\0';
-        }
-      
+        //pthread_mutex_lock(lock);
         char* page = _fetch_fn(url);
-        pthread_mutex_unlock(lock);
+        //pthread_mutex_unlock(lock);
         printf("fetched: %s\n", url);
         u_enqueue(parse_queue, url, page);
         printf("u_enqueue page\n");
