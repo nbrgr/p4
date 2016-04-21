@@ -336,6 +336,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     int hash_result;
     int interrupted_u_enqueue = 0;
     int offset = 0;
+    int prev = parse_queue->size;
     
     do {
     	char* token = strtok_r(page + offset, " \n", &save);
@@ -347,6 +348,9 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     				pthread_cond_signal(parse_queue->empty);
     				pthread_cond_wait(download_queue->full, download_queue->lock);
     				interrupted_u_enqueue = 1;
+    				if(prev >= parse_queue->size) {
+    					parse_queue->size++;
+    				}
     			}
     			if(!interrupted_u_enqueue) {
     				found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
