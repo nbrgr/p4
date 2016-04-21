@@ -453,6 +453,7 @@ int crawl(char *start_url,
     printf("%i parser threads\n", i);
     
     if(!finished) {
+    	printf("main\n");
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_done, lock);
     	pthread_cond_signal(parse_queue->empty);
@@ -461,12 +462,12 @@ int crawl(char *start_url,
     	pthread_mutex_unlock(lock);
     }
     
-    for(i = 0; i < download_workers; i++) {
+    /*for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
-    }
+    }*/
 
     printf("end crawl\n");
     
