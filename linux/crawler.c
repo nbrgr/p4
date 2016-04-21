@@ -379,7 +379,9 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		}
     		if(!interrupted_u_enqueue) {
     			token = strtok_r(NULL, " \n", &save);
-    			offset += (int)strlen(token) + 1;
+    			if(token != NULL) {
+    				offset += (int)strlen(token) + 1;
+    			}
     		}
     		
     		printf("token: %s\n", token);
