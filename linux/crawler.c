@@ -459,7 +459,6 @@ void parser(void (*_edge_fn)(char *from, char *to))
     printf("parser begin\n");
     while(work_count != work_completed) {
     	printf("count: %i, complete: %i\n", work_count, work_completed);
-        pthread_mutex_lock(download_queue->lock);
         pthread_mutex_lock(parse_queue->lock);
         printf("start parser\n");
         while(u_isempty(parse_queue)) {
@@ -471,6 +470,9 @@ void parser(void (*_edge_fn)(char *from, char *to))
         u_queue_node* node = u_dequeue(parse_queue);
         printf("page: %s\n", node->content);
         printf("u_dequeue done\n");
+        pthread_mutex_unlock(parse_queue->lock);
+        
+        pthread_mutex_lock(download_queue->lock);
         while(b_isfull(download_queue)) {
             printf("wait full download queue\n");
     	    pthread_cond_wait(download_queue->full, download_queue->lock);
@@ -485,7 +487,6 @@ void parser(void (*_edge_fn)(char *from, char *to))
         printf("end parser\n");
         printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         pthread_mutex_unlock(download_queue->lock);
-        pthread_mutex_unlock(parse_queue->lock);
     }
 }
 
