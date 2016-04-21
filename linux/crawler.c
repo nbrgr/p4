@@ -453,6 +453,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
         }
         printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         char* page = u_dequeue(parse_queue);
+        printf("page: %s\n", page);
         printf("u_dequeue done\n");
         parse_page(page, _edge_fn);
 
