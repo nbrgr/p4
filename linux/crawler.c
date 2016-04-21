@@ -386,7 +386,6 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		printf("offset: %i\n", offset);
     	}
     	printf("interrupted: %i\n", interrupted_u_enqueue);
-    	free(copy);
     } while(interrupted_u_enqueue);
     
     if(ever_interrupted) {
