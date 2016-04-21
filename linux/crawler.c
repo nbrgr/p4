@@ -335,11 +335,13 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* found;
     int hash_result;
     int interrupted_u_enqueue = 0;
+    int ever_interrupted = 0;
     int offset = 0;
     int prev = parse_queue->size;
     
     do {
     	char* token = strtok_r(page + offset, " \n", &save);
+    	printf("page interrupted: %s\n", page);
     	printf("token interrupted: %s\n", token);
     	interrupted_u_enqueue = 0;
     	while(token != NULL && !interrupted_u_enqueue) {
@@ -349,6 +351,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     				if(prev >= parse_queue->size) {
     					parse_queue->size++;
     				}
+    				ever_interrupted = 1;
     				interrupted_u_enqueue = 1;
     				pthread_cond_signal(parse_queue->empty);
     				pthread_cond_wait(download_queue->full, download_queue->lock);
@@ -376,6 +379,10 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     	}
     	printf("interrupted: %i\n", interrupted_u_enqueue);
     } while(interrupted_u_enqueue);
+    
+    if(ever_interrupted) {
+    	parse_queue->size--;
+    }
     
     printf("end parse_page\n");
     work_completed++;
