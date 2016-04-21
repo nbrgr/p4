@@ -26,7 +26,7 @@ void b_queue_init(b_queue* queue, int queue_size);
 unsigned long hash(char *str);
 void hash_init(hashtable *tbl, int size);
 int hash_find_insert(hashtable *tbl, char* link);
-int u_enqueue(u_queue* queue, char* url);
+int u_enqueue(u_queue* queue, char* url, char* page);
 void b_enqueue(b_queue* queue, char* url);
 u_queue_node* u_dequeue(u_queue* queue);
 int u_isempty(u_queue* queue);
@@ -212,14 +212,15 @@ void u_enqueue: Adds a new node to the end of the queue
 
 @params:
 struct u_queue* queue, the queue to be operated on.
-char* url, the url that will be added to the back of the queue.
+char* url, the url used to find the page contents.
+char* page, the page contents that will be parsed.
 */
-int u_enqueue(struct u_queue* queue, char* url)
+int u_enqueue(struct u_queue* queue, char* url, char* page)
 {
     if(queue == NULL || url == NULL) { return -1; }
     struct u_queue_node* newnode;
     newnode = (struct u_queue_node*)malloc(sizeof(struct u_queue_node));
-    newnode->content = malloc(sizeof(char) * (int)strlen(url));
+    newnode->content = malloc(sizeof(char) * (int)strlen(page));
     newnode->from_link = malloc(sizeof(char) * (int)strlen(url));
     newnode->next = malloc(sizeof(u_queue_node));
     newnode->prev = malloc(sizeof(u_queue_node));
@@ -228,7 +229,8 @@ int u_enqueue(struct u_queue* queue, char* url)
     	return -1;
     }
     queue->size++;
-    newnode->content = strcpy(newnode->content, url);
+    newnode->content = strcpy(newnode->content, page);
+    newnode->from_link = strcpy(newnode->from_link, url);
     if(queue->size == 1 || (queue->size == 2 && interrupted_u_enqueue) ) {
     	// printf("DEAD END SHIIIIT\n");
     	 newnode->next = NULL;
@@ -335,7 +337,6 @@ int b_isfull(struct b_queue* queue)
 u_queue* parse_queue;
 b_queue* download_queue;
 hashtable* links_visited;
-char* from_link = NULL;
 int work_count = 0;
 int work_completed = 0;
 
@@ -434,14 +435,13 @@ void downloader(char* (*_fetch_fn)(char *url))
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
         //printf("Testing seg: download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
-        char* content = b_dequeue(download_queue);
-        from_link = content;
-        //printf("link to fetch: %s\n", content);
+        char* url = b_dequeue(download_queue);
+        //printf("link to fetch: %s\n", url);
         pthread_mutex_lock(lock);
-        content = _fetch_fn(content);
+        char* page = _fetch_fn(url);
         pthread_mutex_unlock(lock);
-        //printf("fetched: %s\n", content);
-        u_enqueue(parse_queue, content);
+        //printf("fetched: %s\n", url);
+        u_enqueue(parse_queue, url, page);
         //printf("u_enqueue page\n");
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
@@ -512,7 +512,6 @@ int crawl(char *start_url,
 
     u_queue_init(parse_queue);
     b_queue_init(download_queue, queue_size);
-    from_link = start_url;
     b_enqueue(download_queue, start_url);
     work_count++;
     //printf("page: %s\n", start_url);
