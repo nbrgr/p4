@@ -230,11 +230,16 @@ int u_enqueue(struct u_queue* queue, char* url)
     if(queue->size == 1 || (queue->size == 2 && interrupted_u_enqueue) ) {
     	 printf("DEAD END SHIIIIT\n");
     	 queue->front = newnode;
+    	 queue->back = newnode;
+    	 newnode->next = NULL;
+    	 newnode->prev = NULL;
     }
-    newnode->next = queue->back;
-    queue->back->prev = newnode;
-    newnode->prev = NULL;
-    queue->back = newnode;
+    else {
+    	newnode->next = queue->back;
+    	queue->back->prev = newnode;
+    	newnode->prev = NULL;
+    	queue->back = newnode;
+    }
     return 0;
 }
 
