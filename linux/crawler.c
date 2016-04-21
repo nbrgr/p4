@@ -378,8 +378,8 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     			if(!interrupted_u_enqueue) {
     				found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
     				found = strcpy(found, token + 5);
-    				if( *(found + (int)strlen(found) - 1) != '\0' && *(found + (int)strlen(found) - 1) == '%') {
-    					*(found + (int)strlen(found) - 1) = '\0';
+    				if( *(found + (int)strlen(found)) != '\0' && *(found + (int)strlen(found)) == '%') {
+    					*(found + (int)strlen(found)) = '\0';
     				}
 	 			printf("found link: %s\n", found);
     				pthread_mutex_lock(links_visited->lock);
