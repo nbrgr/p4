@@ -338,6 +338,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     int ever_interrupted = 0;
     int offset = 0;
     int prev = parse_queue->size;
+    char* copy;
     
     do {
     	copy = strcpy(copy, page);
