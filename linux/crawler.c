@@ -257,15 +257,21 @@ char*, the content from the removed node (the url)
 */
 char* u_dequeue(struct u_queue* queue)
 {
+    printf("start u_dequeue\n");
     char* url = queue->front->content;
+    printf("u_dequeue: url\n");
     struct u_queue_node* copy = queue->front;
+    printf("u_dequeue: copy\n");
     queue->front = queue->front->next;
+    printf("u_dequeue: set front\n");
     queue->size--;
-    if(queue->size == 0) {
+    printf("u_dequeue: size--\n");
+    if(u_isempty(queue)) {
     	queue->back = NULL;
     }
-    //free(copy->next);
+    printf("u_dequeue: check empty\n");
     free(copy);
+    printf("u_dequeue: free\n");
     return url;
 }
 
