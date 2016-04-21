@@ -376,11 +376,11 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     				pthread_cond_wait(download_queue->full, download_queue->lock);
     			}
     			if(!interrupted_u_enqueue) {
-    				found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
+    				found = malloc(sizeof(char) * ((int)strlen(token) - 4) );
     				found = strcpy(found, token + 5);
-    				if( *(found + (int)strlen(found)) != '\0') {
+    				/*if( *(found + (int)strlen(found)) != '\0') {
     					*(found + (int)strlen(found)) = '\0';
-    				}
+    				}*/
 	 			printf("found link: %s\n", found);
     				pthread_mutex_lock(links_visited->lock);
     				hash_result = hash_find_insert(links_visited, found);
@@ -436,7 +436,9 @@ void downloader(char* (*_fetch_fn)(char *url))
         char* url = b_dequeue(download_queue);
         printf("link to fetch: %s\n", url);
         pthread_mutex_lock(lock);
-        *(url + (int)strlen(url)) = '\0';
+        if (*(url + (int)strlen(url)) != '\0') {
+        	*(url + (int)strlen(url)) = '\0';
+        }
       
         char* page = _fetch_fn(url);
         pthread_mutex_unlock(lock);
