@@ -334,7 +334,6 @@ u_queue* parse_queue;
 b_queue* download_queue;
 hashtable* links_visited;
 char* from_link = NULL;
-volatile int finished = 0;
 int work_count = 0;
 int work_completed = 0;
 
@@ -373,6 +372,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     				interrupted_u_enqueue = 1;
     				pthread_cond_signal(parse_queue->empty);
     				pthread_cond_signal(download_queue->empty);
+    				printf("waiting interrupted execution\n");
     				pthread_cond_wait(download_queue->full, download_queue->lock);
     			}
     			if(!interrupted_u_enqueue) {
@@ -425,7 +425,6 @@ void downloader(char* (*_fetch_fn)(char *url))
         while(b_isempty(download_queue)) {
         	printf("waiting download_queue empty\n");
         	if(u_isempty(parse_queue)) {
-        		finished = 1;
         		pthread_cond_signal(not_done);
         		pthread_cond_signal(parse_queue->empty);
         		pthread_cond_signal(download_queue->full);
@@ -444,7 +443,6 @@ void downloader(char* (*_fetch_fn)(char *url))
         printf("u_enqueue page\n");
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
-        	finished = 1;
         	pthread_cond_signal(not_done);
         }
 
@@ -468,9 +466,11 @@ void parser(void (*_edge_fn)(char *from, char *to))
         pthread_mutex_lock(parse_queue->lock);
         printf("start parser\n");
         while(u_isempty(parse_queue)) {
+        	printf("wait empty parse queue\n");
         	pthread_cond_wait(parse_queue->empty, parse_queue->lock);
         }
         while(b_isfull(download_queue)) {
+            printf("wait full download queue\n");
     	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
         printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
@@ -480,7 +480,6 @@ void parser(void (*_edge_fn)(char *from, char *to))
         parse_page(page, _edge_fn);
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
-        	finished = 1;
         	pthread_cond_signal(not_done);
         }
 
@@ -531,7 +530,7 @@ int crawl(char *start_url,
     }
     printf("%i parser threads\n", i);
     
-    if(!finished) {
+    if(work_count != work_completed) {
     	printf("MAAAAAAIIIIIIIIIIINNNNNNN\n");
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_done, lock);
@@ -541,12 +540,12 @@ int crawl(char *start_url,
     	pthread_mutex_unlock(lock);
     }
     
-   /* for(i = 0; i < download_workers; i++) {
+    for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
-    }*/
+    }
 
     printf("end crawl\n");
     
