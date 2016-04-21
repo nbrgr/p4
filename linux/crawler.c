@@ -240,6 +240,7 @@ char* url, the url used to later fetch the page content.
 */
 void b_enqueue(struct b_queue* queue, char* url)
 {
+    printf("Added new link to queue\n");
     queue->array[queue->back] = url;
     queue->back++;
     queue->back = queue->back % queue->max;
@@ -451,13 +452,6 @@ int crawl(char *start_url,
     }
     printf("%i parser threads\n", i);
     
-    for(i = 0; i < download_workers; i++) {
-    	pthread_join(downloaders[i], NULL);
-    }
-    for(i = 0; i < parse_workers; i++) {
-    	pthread_join(parsers[i], NULL);
-    }
-
     if(!finished) {
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_done, lock);
@@ -465,6 +459,13 @@ int crawl(char *start_url,
     	pthread_cond_signal(download_queue->empty);
     	pthread_cond_signal(download_queue->full);
     	pthread_mutex_unlock(lock);
+    }
+    
+    for(i = 0; i < download_workers; i++) {
+    	pthread_join(downloaders[i], NULL);
+    }
+    for(i = 0; i < parse_workers; i++) {
+    	pthread_join(parsers[i], NULL);
     }
 
     printf("end crawl\n");
