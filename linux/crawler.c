@@ -279,7 +279,9 @@ char* u_dequeue(struct u_queue* queue)
     printf("u_dequeue: copy\n");
     queue->front = queue->front->prev;
     printf("u_dequeue: seg???\n");
-    queue->front->next = NULL;
+    if(queue->front != NULL) {
+    	queue->front->next = NULL;
+    }
     printf("u_dequeue: set front\n");
     queue->size--;
     printf("u_dequeue: size--\n");
