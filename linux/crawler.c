@@ -277,7 +277,6 @@ u_queue_node* u_dequeue(struct u_queue* queue)
     if(queue->front == NULL) {
     	printf("SHIIIIT\n");
     }
-    char* url = queue->front->content;
     printf("u_dequeue: url\n");
     struct u_queue_node* copy = queue->front;
     printf("u_dequeue: copy\n");
@@ -473,7 +472,7 @@ void parser(void (*_edge_fn)(char *from, char *to))
         }
         printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         u_queue_node* node = u_dequeue(parse_queue);
-        printf("page: %s\n", page);
+        printf("page: %s\n", node->content);
         printf("u_dequeue done\n");
         parse_page(node, _edge_fn);
 
