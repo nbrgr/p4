@@ -354,9 +354,9 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     	copy = malloc(sizeof(char) * ( (int)strlen(node->content) - offset) );
     	printf("gonna copy\n");
     	copy = strcpy(copy, node->content + offset);
-    	if( *(copy + (int)strlen(copy) - 1) != '\0') {
+    	/*if( *(copy + (int)strlen(copy) - 1) != '\0') {
     		*(found + (int)strlen(copy) - 1) = '\0';
-    	}
+    	}*/
     	printf("copy: %s\n", copy);
     	char* token = strtok_r(copy, " \n", &save);
     	printf("token interrupted: %s\n", token);
