@@ -414,8 +414,6 @@ void downloader(char* (*_fetch_fn)(char *url))
         	printf("waiting download_queue empty\n");
         	if(u_isempty(parse_queue)) {
         		pthread_cond_signal(not_done);
-        		//pthread_cond_signal(parse_queue->empty);
-        		//pthread_cond_signal(download_queue->full);
         	}
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
@@ -523,12 +521,12 @@ int crawl(char *start_url,
     	pthread_mutex_unlock(lock);
     }
     
-    /*for(i = 0; i < download_workers; i++) {
+    for(i = 0; i < download_workers; i++) {
     	pthread_join(downloaders[i], NULL);
     }
     for(i = 0; i < parse_workers; i++) {
     	pthread_join(parsers[i], NULL);
-    }*/
+    }
 
     printf("end crawl\n");
     
