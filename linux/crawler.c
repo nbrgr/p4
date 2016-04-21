@@ -340,6 +340,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     
     do {
     	char* token = strtok_r(page + offset, " \n", &save);
+    	printf("token interrupted: %s\n", token);
     	interrupted_u_enqueue = 0;
     	while(token != NULL && !interrupted_u_enqueue) {
     		printf("token: %s\n", token);
@@ -373,6 +374,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		offset += (int)strlen(token) + 1;
     		token = strtok_r(NULL, " \n", &save);
     	}
+    	printf("interrupted: %i\n");
     } while(interrupted_u_enqueue);
     
     printf("end parse_page\n");
