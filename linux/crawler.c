@@ -415,6 +415,8 @@ void downloader(char* (*_fetch_fn)(char *url))
         	if(u_isempty(parse_queue)) {
         		finished = 1;
         		pthread_cond_signal(not_done);
+        		pthread_cond_signal(parse_queue->empty);
+        		pthread_cond_signal(download_queue->full);
         	}
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
