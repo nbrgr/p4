@@ -399,11 +399,11 @@ void parser(void (*_edge_fn)(char *from, char *to))
         while(u_isempty(parse_queue)) {
         	pthread_cond_wait(parse_queue->empty, parse_queue->lock);
         }
+        char* page = u_dequeue(parse_queue);
         while(b_isfull(download_queue)) {
     	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
-        printf("count: %i, complete: %i\n", work_count, work_completed);
-        char* page = u_dequeue(parse_queue);
+        printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         printf("u_dequeue done\n");
         parse_page(page, _edge_fn);
 
