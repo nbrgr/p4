@@ -229,14 +229,10 @@ int u_enqueue(struct u_queue* queue, char* url)
     newnode->content = strcpy(newnode->content, url);
     if(queue->size == 1 || (queue->size == 2 && interrupted_u_enqueue) ) {
     	 printf("DEAD END SHIIIIT\n");
-    	 queue->front = newnode;
-    	 queue->front->next = NULL;
-    	 queue->front->prev = NULL;
-    	 queue->back = newnode;
-    	 queue->back->next = NULL;
-    	 queue->back->prev = NULL;
     	 newnode->next = NULL;
     	 newnode->prev = NULL;
+    	 queue->front = newnode;
+    	 queue->back = newnode;
     }
     else {
     	newnode->next = queue->back;
@@ -282,6 +278,7 @@ char* u_dequeue(struct u_queue* queue)
     struct u_queue_node* copy = queue->front;
     printf("u_dequeue: copy\n");
     queue->front = queue->front->prev;
+    printf("u_dequeue: seg???\n");
     queue->front->next = NULL;
     printf("u_dequeue: set front\n");
     queue->size--;
