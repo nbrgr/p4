@@ -345,7 +345,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     		if(strncmp(token, search, 5) == 0) {
     			while(download_queue->size >= download_queue->max) {
     				pthread_cond_wait(download_queue->full, download_queue->lock);
-    				pthread_cond_signal(parse_queue->empty, parse_queue->lock);
+    				pthread_cond_signal(parse_queue->empty);
     				interrupted_u_enqueue = 1;
     			}
     			if(!interrupted_u_enqueue) {
