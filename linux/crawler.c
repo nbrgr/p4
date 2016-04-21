@@ -377,8 +377,8 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     			}
     		
     		}
-    		offset += (int)strlen(token) + 1;
     		token = strtok_r(NULL, " \n", &save);
+    		offset += (int)strlen(token) + 1;
     	}
     	printf("interrupted: %i\n", interrupted_u_enqueue);
     	free(copy);
