@@ -170,9 +170,9 @@ unsigned long hash(char *str)
 
 int hash_find_insert(hashtable *tbl, char* link) {
 	
-	printf("start insert\n");
+	//printf("start insert\n");
         unsigned long key = hash(link) % (tbl->max);
-        printf("key: %li\n", key);
+        //printf("key: %li\n", key);
         int found = 0;
         int insert = 0;
         
@@ -181,7 +181,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
         	(tbl->table[key])->next = NULL;
         	(tbl->table[key])->link = malloc(sizeof(char) * (int)strlen(link));
         	(tbl->table[key])->link = strcpy((tbl->table[key])->link, link);
-        	printf("bucket: %s\n", (tbl->table[key])->link);
+        //	printf("bucket: %s\n", (tbl->table[key])->link);
         }
         else {
         	bucket* copy = tbl->table[key];
@@ -193,7 +193,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
                                bucket* new_b = malloc(sizeof(bucket));
                                new_b->next = NULL;
                                new_b->link = link;
-                               printf("bucket: %s\n", new_b->link);
+          //                     printf("bucket: %s\n", new_b->link);
                                copy->next = new_b;
                                insert = 1;
                         }
@@ -202,7 +202,7 @@ int hash_find_insert(hashtable *tbl, char* link) {
                         }
                 }
         }
-        printf("end insert\n");
+        //printf("end insert\n");
         return found;
 }
 
@@ -228,7 +228,7 @@ int u_enqueue(struct u_queue* queue, char* url)
     queue->size++;
     newnode->content = strcpy(newnode->content, url);
     if(queue->size == 1 || (queue->size == 2 && interrupted_u_enqueue) ) {
-    	 printf("DEAD END SHIIIIT\n");
+    	// printf("DEAD END SHIIIIT\n");
     	 newnode->next = NULL;
     	 newnode->prev = NULL;
     	 queue->front = newnode;
@@ -252,7 +252,7 @@ char* url, the url used to later fetch the page content.
 */
 void b_enqueue(struct b_queue* queue, char* url)
 {
-    printf("Added new link to queue\n");
+    //printf("Added new link to queue\n");
     queue->array[queue->back] = url;
     queue->back++;
     queue->back = queue->back % queue->max;
@@ -269,28 +269,28 @@ char*, the content from the removed node (the url)
 */
 char* u_dequeue(struct u_queue* queue)
 {
-    printf("start u_dequeue\n");
+    //printf("start u_dequeue\n");
     if(queue->front == NULL) {
-    	printf("SHIIIIT\n");
+    	//printf("SHIIIIT\n");
     }
     char* url = queue->front->content;
-    printf("u_dequeue: url\n");
+    //printf("u_dequeue: url\n");
     struct u_queue_node* copy = queue->front;
-    printf("u_dequeue: copy\n");
+    //printf("u_dequeue: copy\n");
     queue->front = queue->front->prev;
-    printf("u_dequeue: seg???\n");
+    //printf("u_dequeue: seg???\n");
     if(queue->front != NULL) {
     	queue->front->next = NULL;
     }
-    printf("u_dequeue: set front\n");
+    //printf("u_dequeue: set front\n");
     queue->size--;
-    printf("u_dequeue: size--\n");
+    //printf("u_dequeue: size--\n");
     if(u_isempty(queue)) {
     	queue->back = NULL;
     }
-    printf("u_dequeue: check empty\n");
+    //printf("u_dequeue: check empty\n");
     free(copy);
-    printf("u_dequeue: free\n");
+    //printf("u_dequeue: free\n");
     return url;
 }
 
@@ -342,7 +342,7 @@ pthread_cond_t* not_done;
 
 void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
 {
-    printf("parse_page\n");
+    //printf("parse_page\n");
     char* search = "link:";
     char* save;
     char* found;
@@ -354,15 +354,15 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     
     do {
     	copy = malloc(sizeof(char) * ( (int)strlen(page) - offset) );
-    	printf("gonna copy\n");
+    	//printf("gonna copy\n");
     	copy = strcpy(copy, page + offset);
-    	printf("copy: %s\n", copy);
+    	//printf("copy: %s\n", copy);
     	char* token = strtok_r(copy, " \n", &save);
-    	printf("token interrupted: %s\n", token);
-    	printf("offset: %i\n", offset);
+    	//printf("token interrupted: %s\n", token);
+    	//printf("offset: %i\n", offset);
     	interrupted_u_enqueue = 0;
     	while(token != NULL && !interrupted_u_enqueue) {
-    		printf("token: %s\n", token);
+    		//printf("token: %s\n", token);
     		if(strncmp(token, search, 5) == 0) {
     			while(download_queue->size >= download_queue->max) {
     				if(prev >= parse_queue->size) {
@@ -372,20 +372,20 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     				interrupted_u_enqueue = 1;
     				pthread_cond_signal(parse_queue->empty);
     				pthread_cond_signal(download_queue->empty);
-    				printf("waiting interrupted execution\n");
+    				//printf("waiting interrupted execution\n");
     				pthread_cond_wait(download_queue->full, download_queue->lock);
     			}
     			if(!interrupted_u_enqueue) {
     				found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
     				found = strcpy(found, token + 5);
-	 			printf("found link: %s\n", found);
+	 			//printf("found link: %s\n", found);
     				pthread_mutex_lock(links_visited->lock);
     				hash_result = hash_find_insert(links_visited, found);
     				pthread_mutex_unlock(links_visited->lock);
     				if(!hash_result) {
     					work_count++;
     				        b_enqueue(download_queue, found);
-    				        printf("from: %s, to: %s\n", from_link, found);
+    				        //printf("from: %s, to: %s\n", from_link, found);
 	   		        	pthread_mutex_lock(lock);
     				        _edge_fn(from_link, found);
     				        pthread_mutex_unlock(lock);
@@ -400,30 +400,30 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     			}
     		}
     		
-    		printf("token: %s\n", token);
-    		printf("offset: %i\n", offset);
+    		//printf("token: %s\n", token);
+    		//printf("offset: %i\n", offset);
     	}
-    	printf("interrupted: %i\n", interrupted_u_enqueue);
+    	//printf("interrupted: %i\n", interrupted_u_enqueue);
     } while(interrupted_u_enqueue);
     
     if(ever_interrupted) {
     	parse_queue->size--;
     }
     
-    printf("end parse_page\n");
+    //printf("end parse_page\n");
     work_completed++;
 }
 
 void downloader(char* (*_fetch_fn)(char *url))
 {
-    printf("count: %i, complete: %i\n", work_count, work_completed);
+    //printf("count: %i, complete: %i\n", work_count, work_completed);
     while(work_count != work_completed)
     {
-    	printf("count: %i, complete: %i\n", work_count, work_completed);
+    	//printf("count: %i, complete: %i\n", work_count, work_completed);
         pthread_mutex_lock(download_queue->lock);
-        printf("start downloader\n");
+        //printf("start downloader\n");
         while(b_isempty(download_queue)) {
-        	printf("waiting download_queue empty\n");
+        //	printf("waiting download_queue empty\n");
         	if(u_isempty(parse_queue)) {
         		pthread_cond_signal(not_done);
         		pthread_cond_signal(parse_queue->empty);
@@ -431,16 +431,16 @@ void downloader(char* (*_fetch_fn)(char *url))
         	}
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
-        printf("Testing seg: download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
+        //printf("Testing seg: download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         char* content = b_dequeue(download_queue);
         from_link = content;
-        printf("link to fetch: %s\n", content);
+        //printf("link to fetch: %s\n", content);
         pthread_mutex_lock(lock);
         content = _fetch_fn(content);
         pthread_mutex_unlock(lock);
-        printf("fetched: %s\n", content);
+        //printf("fetched: %s\n", content);
         u_enqueue(parse_queue, content);
-        printf("u_enqueue page\n");
+        //printf("u_enqueue page\n");
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
         	pthread_cond_signal(not_done);
@@ -448,35 +448,33 @@ void downloader(char* (*_fetch_fn)(char *url))
 
         pthread_cond_signal(parse_queue->empty);
         pthread_cond_signal(download_queue->full);
-        printf("end downloader\n");
-        printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
+        //printf("end downloader\n");
+        //printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         pthread_mutex_unlock(download_queue->lock);
     }
 }
 
 void parser(void (*_edge_fn)(char *from, char *to))
 {
-    printf("parser begin\n");
-    printf("count: %i, complete: %i\n", work_count, work_completed);
+    //printf("parser begin\n");
+    //printf("count: %i, complete: %i\n", work_count, work_completed);
     while(work_count != work_completed) {
-    	printf("count: %i, complete: %i\n", work_count, work_completed);
-    	//u_queue_node* copy = parse_queue->head;
-    	
+    //	printf("count: %i, complete: %i\n", work_count, work_completed);
         pthread_mutex_lock(download_queue->lock);
         pthread_mutex_lock(parse_queue->lock);
-        printf("start parser\n");
+        //printf("start parser\n");
         while(u_isempty(parse_queue)) {
-        	printf("wait empty parse queue\n");
+        //	printf("wait empty parse queue\n");
         	pthread_cond_wait(parse_queue->empty, parse_queue->lock);
         }
         while(b_isfull(download_queue)) {
-            printf("wait full download queue\n");
+         //   printf("wait full download queue\n");
     	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
-        printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
+        //printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         char* page = u_dequeue(parse_queue);
-        printf("page: %s\n", page);
-        printf("u_dequeue done\n");
+       // printf("page: %s\n", page);
+       // printf("u_dequeue done\n");
         parse_page(page, _edge_fn);
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
@@ -484,8 +482,8 @@ void parser(void (*_edge_fn)(char *from, char *to))
         }
 
         pthread_cond_signal(download_queue->empty);
-        printf("end parser\n");
-        printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
+        //printf("end parser\n");
+        //printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         pthread_mutex_unlock(download_queue->lock);
         pthread_mutex_unlock(parse_queue->lock);
     }
@@ -498,7 +496,7 @@ int crawl(char *start_url,
 	  char * (*_fetch_fn)(char *url),
 	  void* (*_edge_fn)(char *from, char *to))
 {
-    printf("start crawl\n");
+    //printf("start crawl\n");
     pthread_t* downloaders = malloc(sizeof(pthread_t) * download_workers);
     pthread_t* parsers = malloc(sizeof(pthread_t) * parse_workers);
     parse_queue = malloc(sizeof(u_queue));
@@ -515,8 +513,8 @@ int crawl(char *start_url,
     from_link = start_url;
     b_enqueue(download_queue, start_url);
     work_count++;
-    printf("page: %s\n", start_url);
-    printf("first link added\n");
+    //printf("page: %s\n", start_url);
+    //printf("first link added\n");
     hash_init(links_visited, queue_size);
     hash_find_insert(links_visited, start_url);
 
@@ -524,14 +522,14 @@ int crawl(char *start_url,
     for(; i < download_workers; i++) {
     	pthread_create(&downloaders[i], NULL, (void*)downloader, (void*)_fetch_fn);
     }
-    printf("%i downloader threads\n", i);
+    //printf("%i downloader threads\n", i);
     for(i = 0; i < parse_workers; i++) {
     	pthread_create(&parsers[i], NULL, (void*)parser, (void*)_edge_fn);
     }
-    printf("%i parser threads\n", i);
+    //printf("%i parser threads\n", i);
     
     if(work_count != work_completed) {
-    	printf("MAAAAAAIIIIIIIIIIINNNNNNN\n");
+    //	printf("MAAAAAAIIIIIIIIIIINNNNNNN\n");
     	pthread_mutex_lock(lock);
     	pthread_cond_wait(not_done, lock);
     	pthread_cond_signal(parse_queue->empty);
@@ -547,7 +545,7 @@ int crawl(char *start_url,
     	pthread_join(parsers[i], NULL);
     }*/
 
-    printf("end crawl\n");
+    //printf("end crawl\n");
     
     //pthread_exit(0);
     exit(0);
