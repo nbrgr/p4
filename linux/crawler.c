@@ -388,7 +388,7 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     				if(!hash_result) {
     					work_count++;
     				        b_enqueue(download_queue, found);
-    				        printf("from: %s, to: %s\n", from_link, found);
+    				        printf("from: %s, to: %s\n", node->from_link, found);
 	   		        	pthread_mutex_lock(lock);
     				        _edge_fn(node->from_link, found);
     				        pthread_mutex_unlock(lock);
