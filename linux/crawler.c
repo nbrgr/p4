@@ -323,6 +323,8 @@ char* from_link = NULL;
 volatile int finished = 0;
 int work_count = 0;
 int work_completed = 0;
+int interrupted_u_enqueue = 0;
+int interrupted_offset = 0;
 
 pthread_mutex_t* lock;
 pthread_cond_t* not_done;
@@ -333,32 +335,41 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     char* search = "link:";
     char* save;
     char* found;
-    char* token = strtok_r(page, " \n", &save);
     int hash_result;
     
-    while(token != NULL) {
-    	printf("token: %s\n", token);
-    	if(strncmp(token, search, 5) == 0) {
-    		while(download_queue->size >= download_queue->max) {
-    			pthread_cond_wait(download_queue->full, download_queue->lock);
+    do {
+    	char* token = strtok_r(page + offset, " \n", &save);
+    	interrupted_u_enqueue = 0;
+    	while(token != NULL && !interrupted_u_queue) {
+    		printf("token: %s\n", token);
+    		if(strncmp(token, search, 5) == 0) {
+    			while(download_queue->size >= download_queue->max) {
+    				pthread_cond_wait(download_queue->full, download_queue->lock);
+    				interrupted_u_enqueue = 1;
+    			}
+    			if(!interrupted_u_enqueue) {
+    				found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
+    				found = strcpy(found, token + 5);
+	 			printf("found link: %s\n", found);
+    				pthread_mutex_lock(links_visited->lock);
+    				hash_result = hash_find_insert(links_visited, found);
+    				pthread_mutex_unlock(links_visited->lock);
+    				if(!hash_result) {
+    					work_count++;
+    				        b_enqueue(download_queue, found);
+    				        printf("from: %s, to: %s\n", from_link, found);
+	   		        	pthread_mutex_lock(lock);
+    				        _edge_fn(from_link, found);
+    				        pthread_mutex_unlock(lock);
+    				}
+    			}
+    		
     		}
-    		found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
-    		found = strcpy(found, token + 5);
-    		printf("found link: %s\n", found);
-    		pthread_mutex_lock(links_visited->lock);
-    		hash_result = hash_find_insert(links_visited, found);
-    		pthread_mutex_unlock(links_visited->lock);
-    		if(!hash_result) {
-    			work_count++;
-    		        b_enqueue(download_queue, found);
-    		        printf("from: %s, to: %s\n", from_link, found);
-    		        pthread_mutex_lock(lock);
-    		        _edge_fn(from_link, found);
-    		        pthread_mutex_unlock(lock);
-    		}
+    		offset += (int)strlen(token) + 1;
+    		token = strtok_r(NULL, " \n", &save);
     	}
-    	token = strtok_r(NULL, " \n", &save);
-    }
+    } while(interrupted_u_enqueue);
+    
     printf("end parse_page\n");
     work_completed++;
 }
