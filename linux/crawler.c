@@ -19,6 +19,8 @@ typedef struct hashtable hashtable;
 typedef struct u_queue u_queue;
 typedef struct b_queue b_queue;
 
+int interrupted_u_enqueue;
+
 void u_queue_init(u_queue* initqueue);
 void b_queue_init(b_queue* queue, int queue_size);
 unsigned long hash(char *str);
@@ -323,7 +325,7 @@ char* from_link = NULL;
 volatile int finished = 0;
 int work_count = 0;
 int work_completed = 0;
-int interrupted_u_enqueue = 0;
+interrupted_u_enqueue = 0;
 
 pthread_mutex_t* lock;
 pthread_cond_t* not_done;
