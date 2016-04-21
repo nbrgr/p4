@@ -256,7 +256,6 @@ char* url, the url used to later fetch the page content.
 */
 void b_enqueue(struct b_queue* queue, char* url)
 {
-    printf("Added new link to queue\n");
     queue->array[queue->back] = url;
     queue->back++;
     queue->back = queue->back % queue->max;
@@ -273,26 +272,15 @@ u_queue_node*, the removed node
 */
 u_queue_node* u_dequeue(struct u_queue* queue)
 {
-    printf("start u_dequeue\n");
-    if(queue->front == NULL) {
-    	printf("SHIIIIT\n");
-    }
-    printf("u_dequeue: url\n");
     struct u_queue_node* copy = queue->front;
-    printf("u_dequeue: copy\n");
     queue->front = queue->front->prev;
-    printf("u_dequeue: seg???\n");
     if(queue->front != NULL) {
     	queue->front->next = NULL;
     }
-    printf("u_dequeue: set front\n");
     queue->size--;
-    printf("u_dequeue: size--\n");
     if(u_isempty(queue)) {
     	queue->back = NULL;
     }
-    printf("u_dequeue: check empty\n");
-    printf("u_dequeue: free\n");
     return copy;
 }
 
@@ -363,7 +351,6 @@ void parse_page(u_queue_node* node, void (*_edge_fn)(char *from, char *to))
     	printf("offset: %i\n", offset);
     	interrupted_u_enqueue = 0;
     	while(token != NULL && !interrupted_u_enqueue) {
-    		printf("token: %s\n", token);
     		if(strncmp(token, search, 5) == 0) {
     			while(download_queue->size >= download_queue->max) {
     				if(prev >= parse_queue->size) {
