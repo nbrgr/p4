@@ -328,6 +328,9 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     while(token != NULL) {
     	printf("token: %s\n", token);
     	if(strncmp(token, search, 5) == 0) {
+    		while(download_queue->size >= download_queue->max) {
+    			pthread_cond_wait(download_queue->full, download_queue->lock);
+    		}
     		found = malloc(sizeof(char) * ((int)strlen(token) - 5) );
     		found = strcpy(found, token + 5);
     		printf("found link: %s\n", found);
