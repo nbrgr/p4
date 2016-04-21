@@ -530,6 +530,6 @@ int crawl(char *start_url,
 
     printf("end crawl\n");
     
-    //pthread_exit(0);
-    exit(0);
+    pthread_exit(0);
+    //exit(0);
 }
