@@ -464,16 +464,17 @@ void parser(void (*_edge_fn)(char *from, char *to))
         printf("start parser\n");
         while(u_isempty(parse_queue)) {
         	printf("wait empty parse queue\n");
+        	pthread_cond_signal(download_queue->empty);
         	pthread_cond_wait(parse_queue->empty, parse_queue->lock);
-        }
-        while(b_isfull(download_queue)) {
-            printf("wait full download queue\n");
-    	    pthread_cond_wait(download_queue->full, download_queue->lock);
         }
         printf("download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         u_queue_node* node = u_dequeue(parse_queue);
         printf("page: %s\n", node->content);
         printf("u_dequeue done\n");
+        while(b_isfull(download_queue)) {
+            printf("wait full download queue\n");
+    	    pthread_cond_wait(download_queue->full, download_queue->lock);
+        }
         parse_page(node, _edge_fn);
 
         if(u_isempty(parse_queue) && b_isempty(download_queue)) {
