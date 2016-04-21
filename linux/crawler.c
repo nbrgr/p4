@@ -360,6 +360,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     				ever_interrupted = 1;
     				interrupted_u_enqueue = 1;
     				pthread_cond_signal(parse_queue->empty);
+    				pthread_cond_signal(download)
     				pthread_cond_wait(download_queue->full, download_queue->lock);
     			}
     			if(!interrupted_u_enqueue) {
@@ -410,6 +411,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         pthread_mutex_lock(download_queue->lock);
         printf("start downloader\n");
         while(b_isempty(download_queue)) {
+        	printf("waiting download_queue empty\n");
         	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
         printf("Testing seg: download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
