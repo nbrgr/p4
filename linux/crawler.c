@@ -345,6 +345,7 @@ void parse_page(char* page, void (*_edge_fn)(char *from, char *to))
     	char* token = strtok_r(copy + offset, " \n", &save);
     	printf("page interrupted: %s\n", page);
     	printf("token interrupted: %s\n", token);
+    	printf("offset: %i\n", offset);
     	interrupted_u_enqueue = 0;
     	while(token != NULL && !interrupted_u_enqueue) {
     		printf("token: %s\n", token);
