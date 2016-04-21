@@ -437,7 +437,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         printf("link to fetch: %s\n", url);
         pthread_mutex_lock(lock);
         if( *(url + (int)strlen(url)) != '\0') {
-        	*(url + (int)strlen(url)) = '\0'
+        	*(url + (int)strlen(url)) = '\0';
         }
         char* page = _fetch_fn(url);
         pthread_mutex_unlock(lock);
