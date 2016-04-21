@@ -416,7 +416,7 @@ void downloader(char* (*_fetch_fn)(char *url))
         		finished = 1;
         		pthread_cond_signal(not_done);
         	}
-        	pthread_cond_wait(download_queue->empty, download_queue->lock)
+        	pthread_cond_wait(download_queue->empty, download_queue->lock);
         }
         printf("Testing seg: download_queue: %i, parse_queue: %i\n", download_queue->size, parse_queue->size);
         char* content = b_dequeue(download_queue);
