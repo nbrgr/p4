@@ -42,6 +42,7 @@ A string that contains the content of that node and a pointer to the next node i
 struct u_queue_node {
     char* content;
     u_queue_node* next;
+    u_queue_node* prev;
 };
 
 struct bucket {
@@ -228,9 +229,10 @@ int u_enqueue(struct u_queue* queue, char* url)
     if(queue->size == 1 || (queue->size == 2 && interrupted_u_enqueue) ) {
     	 printf("DEAD END SHIIIIT\n");
     	 queue->front = newnode;
-    	 queue->back = NULL;
     }
     newnode->next = queue->back;
+    queue->back->prev = newnode;
+    newnode->prev = NULL;
     queue->back = newnode;
     return 0;
 }
@@ -269,7 +271,8 @@ char* u_dequeue(struct u_queue* queue)
     printf("u_dequeue: url\n");
     struct u_queue_node* copy = queue->front;
     printf("u_dequeue: copy\n");
-    queue->front = queue->front->next;
+    queue->front = queue->front->prev;
+    queue->front->next = NULL;
     printf("u_dequeue: set front\n");
     queue->size--;
     printf("u_dequeue: size--\n");
